@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -25,9 +24,9 @@ export function LoginForm({
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
-          <CardDescription>
+         { /* <CardDescription>
             Enter your email below to login to your account
-          </CardDescription>
+          </CardDescription> */}
         </CardHeader>
         <CardContent>
           <form>
@@ -37,7 +36,7 @@ export function LoginForm({
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="Enter your email"
                   required
                 />
               </Field>
@@ -51,7 +50,7 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required placeholder="Password"/>
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -59,7 +58,7 @@ export function LoginForm({
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
-                  Don't have an account? <Link to="/signup">Sign up</Link>
+                  Don't have an account? <Link to="/signup"className="font-semibold">Sign up</Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
