@@ -2,10 +2,22 @@ import React, { useState } from 'react';
 import { Home, Pill, User, Bell, AlertCircle, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { signOut } from "firebase/auth";
+import { auth } from '@/config/firebase';
+import { Button } from '@/components/ui/button';
 
 export default function MedTrackHomepage() {
   const [activeTab, setActiveTab] = useState('home');
 
+
+const logout = async () => {
+  try {
+    await signOut(auth);
+    console.log("User logged out");
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
+};
   const features = [
     {
       icon: Bell,
@@ -181,6 +193,9 @@ export default function MedTrackHomepage() {
           </button>
         </div>
       </div>
+      <Button onClick={logout} className="fixed top-4 right-4 bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg shadow-md">
+        Logout
+      </Button>
     </div>
   );
 }

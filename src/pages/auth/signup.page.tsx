@@ -1,3 +1,4 @@
+import { signUpWithGoogle } from "@/api/auth"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -12,9 +13,57 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Link } from "react-router"
+import { auth, googleAuthProvider } from "@/config/firebase"
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { Link, useNavigate } from "react-router"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+  const navigate = useNavigate();
+  const handleSignUpWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleAuthProvider);
+
+    // Google Access Token
+    // const credential = GoogleAuthProvider.credentialFromResult(result);
+    // const token = credential?.accessToken;
+
+    // Signed-in user info
+    const user = result.user;
+   if (!user) return;
+
+    const payload = {
+      uid: user.uid,
+      name: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      provider: "google",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await signUpWithGoogle(payload);
+    console.log("Google Sign-In successful:", user);
+      navigate("/");
+    // return { user, token };
+  } catch (error:any) {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    const email = error.customData?.email;
+    const credential = GoogleAuthProvider.credentialFromError(error);
+
+    console.error("Google Sign-In Error:", {
+      errorCode,
+      errorMessage,
+      email,
+      credential,
+    });
+
+    throw error; // rethrow if you want caller to handle it
+  }
+};
+
+
+  
   return (
     <Card {...props}>
       <CardHeader>
@@ -60,7 +109,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             <FieldGroup>
               <Field>
                 <Button type="submit">Create Account</Button>
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" onClick={handleSignUpWithGoogle}>
                   Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">

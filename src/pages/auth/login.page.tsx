@@ -13,12 +13,36 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
+import { signInWithPopup } from "firebase/auth"
+import { auth, googleAuthProvider } from "@/config/firebase"
+import { useState } from "react"
+import { getUserByEmail } from "@/api/auth"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const navigate = useNavigate();
+const [error, setError] = useState<string | null>(null);
+  const handleLoginWithGoogle = async () => {
+  try {
+    setError(null);
+    const result = await signInWithPopup(auth, googleAuthProvider);
+    const user = result.user;// google theke user to peyei ja66e.
+    //tahole amader ke db theke akta query kore check kore nite hbe first e based on the user variable 
+    const isUserPresentInDb = await getUserByEmail(user.email!);
+    if (!isUserPresentInDb) {
+      setError("No user found with Google account.");
+      return;
+    }
+
+    navigate("/");
+  } catch (error) {
+    console.error("Google login failed:", error);
+  }
+};
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -54,7 +78,7 @@ export function LoginForm({
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" onClick={handleLoginWithGoogle}>
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
@@ -63,6 +87,7 @@ export function LoginForm({
               </Field>
             </FieldGroup>
           </form>
+          {error && <div className="text-red-500 mt-4 text-center">{error}</div>}
         </CardContent>
       </Card>
     </div>
