@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { signInWithEmailAndPassword } from "firebase/auth"
 import {
   Card,
   CardContent,
@@ -24,6 +25,9 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const navigate = useNavigate();
+const [email, setEmail] = useState<string>("");
+const [password, setPassword] = useState<string>("");
+
 const [error, setError] = useState<string | null>(null);
   const handleLoginWithGoogle = async () => {
   try {
@@ -41,6 +45,35 @@ const [error, setError] = useState<string | null>(null);
   } catch (error) {
     console.error("Google login failed:", error);
   }
+  }
+
+  const HandleManualSignin = async () => {
+  try {
+    setError(null);
+
+    const result = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = result.user;
+    const isUserPresentInDb = await getUserByEmail(user.email!);
+    if (!isUserPresentInDb) {
+      setError("Invalid email or password.");
+      return;
+    }
+    navigate("/");
+  } catch (error: any) {
+    console.error("Manual login failed:", error);
+
+    if (error.code === "auth/wrong-password") {
+      setError("Incorrect password. Please try again.");
+    } else if (error.code === "auth/user-not-found") {
+      setError("User not found");
+    } else {
+      setError("Login failed. Please try again later.");
+    }
+  }
 };
 
   return (
@@ -53,7 +86,12 @@ const [error, setError] = useState<string | null>(null);
           </CardDescription> */}
         </CardHeader>
         <CardContent>
-          <form>
+          <form
+              onSubmit={(e) => {
+              e.preventDefault()
+              HandleManualSignin()
+            }}
+            >
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -61,6 +99,8 @@ const [error, setError] = useState<string | null>(null);
                   id="email"
                   type="email"
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </Field>
@@ -74,7 +114,9 @@ const [error, setError] = useState<string | null>(null);
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required placeholder="Password"/>
+                <Input id="password" type="password" required placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}/>
               </Field>
               <Field>
                 <Button type="submit">Login</Button>
@@ -92,4 +134,4 @@ const [error, setError] = useState<string | null>(null);
       </Card>
     </div>
   )
-}
+ }

@@ -16,9 +16,17 @@ import { Input } from "@/components/ui/input"
 import { auth, googleAuthProvider } from "@/config/firebase"
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
 import { Link, useNavigate } from "react-router"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { useState } from "react"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const navigate = useNavigate();
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
+
   const handleSignUpWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleAuthProvider);
@@ -62,8 +70,43 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   }
 };
 
+const handleManualSignup = async () => {
+  try {
+    setError(null)
+    if (!name || !email || !password || !confirmPassword) {
+      setError("All fields are required")
+      return
+    }
+    if (password !== confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+    const result = await createUserWithEmailAndPassword(auth,email,password)
+    const user = result.user
+    const payload = {
+      uid: user.uid,
+      name: name,
+      email: user.email,
+      photoURL: user.photoURL,
+      provider: "manual",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
 
-  
+    navigate("/")
+  } catch (error: any) {
+    console.error("Manual signup failed:", error)
+
+    if (error.code === "auth/email-already-in-use") {
+      setError("Email already in use")
+    } else if (error.code === "auth/weak-password") {
+      setError("Password should be at least 6 characters")
+    } else {
+      setError("Signup failed. Please try again.")
+    }
+  }
+};
+
   return (
     <Card {...props}>
       <CardHeader>
@@ -73,11 +116,16 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         </CardDescription> */}
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleManualSignup();
+        }}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="Enter your name" required />
+              <Input id="name" type="text" placeholder="Enter your name" required 
+              value={name}
+              onChange={(e) => setName(e.target.value)}/>
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -86,6 +134,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 type="email"
                 placeholder="Enter your email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
               {/*<FieldDescription>
                 We&apos;ll use this to contact you. We will not share your email
@@ -94,7 +144,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" placeholder="Enter your password" required />
+              <Input id="password" type="password" placeholder="Enter your password" required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              />
               {/* <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription> */}
@@ -103,7 +156,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" placeholder="Confirm password" required />
+              <Input id="confirm-password" type="password" placeholder="Confirm password" required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              />
               { /* <FieldDescription>Please confirm your password.</FieldDescription> */}
             </Field>
             <FieldGroup>
@@ -119,6 +175,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </FieldGroup>
           </FieldGroup>
         </form>
+         {error && (
+          <div className="text-red-500 mt-4 text-center">
+            {error}
+          </div>
+        )}
       </CardContent>
     </Card>
     

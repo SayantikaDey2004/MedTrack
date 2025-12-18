@@ -25,4 +25,6 @@ async function getUserByEmail(email: string) {
         throw error;
     }
 }
-export { signUpWithGoogle, getUserByEmail };
+
+
+export { signUpWithGoogle, getUserByEmail, manualSignUp };
