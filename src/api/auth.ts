@@ -26,5 +26,17 @@ async function getUserByEmail(email: string) {
     }
 }
 
+async function manualSignUp(payload){
+    try{
+       
+        const docRef = await addDoc(collection(db, "users"), payload);
+        // console.log("User signed up manually, document ID:", docRef.id);
+    } catch(error){
+        console.error("Error during Manual Sign-Up:", error);
+        throw error;
+    }
+}
+
+
 
 export { signUpWithGoogle, getUserByEmail, manualSignUp };

@@ -4,6 +4,7 @@ import { LoginForm } from "@/pages/auth/login.page";
 import MedTrackHomepage from "@/pages/home.page";
 import ProtectedRoute from "@/components/protected";
 import PublicRoute from "@/components/publicRoute";
+import ForgotPasswordPage from "@/pages/auth/forgotPasswordf.page";
 // import { GoogleAuthButton } from "@/pages/auth/createAccount.page";
 
 
@@ -16,17 +17,22 @@ const Router = createBrowserRouter([
         path: "/login",
         element: <PublicRoute><LoginForm /></PublicRoute>
     },
-  {
+{
         path: "/signup",
         element: <PublicRoute><SignupForm /></PublicRoute>
     },
+
+    {
+        path: "/forgotPassword",
+        element: <ForgotPasswordPage />
+    }
     // {
     //     path: "/createAccount",
     //     element: <GoogleAuthButton/>
     // },
-    {/* {
-        path: "/profilepage",
-        element: <ProfilePage/>
-    } */ }
+    // {
+       // path: "/profilepage",
+       // element: <ProfilePage/>
+  //  } 
 ]);
 export default Router;

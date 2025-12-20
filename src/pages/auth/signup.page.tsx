@@ -1,4 +1,4 @@
-import { signUpWithGoogle } from "@/api/auth"
+import { manualSignUp, signUpWithGoogle } from "@/api/auth"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -91,7 +91,8 @@ const handleManualSignup = async () => {
       provider: "manual",
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    };
+     await manualSignUp(payload);
 
     navigate("/")
   } catch (error: any) {

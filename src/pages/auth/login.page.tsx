@@ -19,6 +19,7 @@ import { signInWithPopup } from "firebase/auth"
 import { auth, googleAuthProvider } from "@/config/firebase"
 import { useState } from "react"
 import { getUserByEmail } from "@/api/auth"
+import { FirebaseError } from "firebase/app"
 
 export function LoginForm({
   className,
@@ -47,7 +48,8 @@ const [error, setError] = useState<string | null>(null);
   }
   }
 
-  const HandleManualSignin = async () => {
+
+const HandleManualSignin = async () => {
   try {
     setError(null);
 
@@ -59,19 +61,27 @@ const [error, setError] = useState<string | null>(null);
     const user = result.user;
     const isUserPresentInDb = await getUserByEmail(user.email!);
     if (!isUserPresentInDb) {
-      setError("Invalid email or password.");
+      setError("No user found with this email.");
       return;
     }
     navigate("/");
-  } catch (error: any) {
+  } catch (error) {
     console.error("Manual login failed:", error);
-
-    if (error.code === "auth/wrong-password") {
-      setError("Incorrect password. Please try again.");
-    } else if (error.code === "auth/user-not-found") {
-      setError("User not found");
+    if (error instanceof FirebaseError) {
+      if (error.code === "auth/wrong-password") {
+        setError("Incorrect password. Please try again.");
+      } 
+      else if (error.code === "auth/user-not-found") {
+        setError("User not found with this email.");
+      } 
+      else if (error.code === "auth/invalid-email") {
+        setError("Invalid email address.");
+      } 
+      else {
+        setError("Login failed. Please try again later.");
+      }
     } else {
-      setError("Login failed. Please try again later.");
+      setError("Something went wrong.");
     }
   }
 };
@@ -107,12 +117,12 @@ const [error, setError] = useState<string | null>(null);
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <a
-                    href="#"
+                  <Link
+                   to="/forgotPassword"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
                     Forgot your password?
-                  </a>
+                  </Link>
                 </div>
                 <Input id="password" type="password" required placeholder="Password"
                 value={password}
