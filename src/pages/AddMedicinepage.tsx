@@ -34,58 +34,65 @@ export default function AddMedicinePage() {
   setFormData(prev => ({ ...prev, [field]: value }))
 }
 
-  return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-8 overflow-hidden bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500">
-      <div className="absolute top-20 left-20 h-64 w-64 rounded-full bg-purple-400/30 blur-3xl"></div>
-      <div className="absolute bottom-20 right-20 h-80 w-80 rounded-full bg-pink-400/30 blur-3xl"></div>
+ return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 relative overflow-hidden">
+      {/* Decorative circles - hidden on mobile */}
+      <div className="absolute top-10 left-10 h-48 w-48 md:h-64 md:w-64 rounded-full bg-purple-400/20 md:bg-purple-400/30 blur-3xl"></div>
+      <div className="absolute bottom-10 right-10 h-56 w-56 md:h-80 md:w-80 rounded-full bg-pink-400/20 md:bg-pink-400/30 blur-3xl"></div>
       
-      <Card className="relative w-full max-w-2xl border-0 shadow-2xl">
-        <CardHeader className="space-y-3 pb-6">
-          <Button 
-            variant="ghost"
-            onClick={() => window.history.back()}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 transition-colors w-fit p-0 h-auto group"
-          >
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Back to home</span>
-          </Button>
-          
-          <div>
-            <CardTitle className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
-              Add Medicine
-            </CardTitle>
-            <CardDescription className="text-base text-gray-600">
-              Enter your medication details below
-            </CardDescription>
-          </div>
-        </CardHeader>
+      {/* Container */}
+      <div className="relative min-h-screen p-4 md:p-6 lg:p-8 flex items-start md:items-center justify-center">
+        <Card className="w-full max-w-2xl border-0 shadow-2xl my-4 md:my-0">
+          {/* Header */}
+          <CardHeader className="space-y-4 p-5 sm:p-6 md:p-8">
+            <Button 
+              variant="ghost"
+              onClick={() => window.history.back()}
+              className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-transparent transition-colors w-fit p-0 h-auto group -ml-1"
+            >
+              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium">Back</span>
+            </Button>
+            
+            <div>
+              <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
+                Add Medicine
+              </CardTitle>
+              <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
+                Enter your medication details
+              </CardDescription>
+            </div>
+          </CardHeader>
         
-        <CardContent>
-          <div className="space-y-5">
+          {/* Content */}
+          <CardContent className="space-y-5 p-5 sm:p-6 md:p-8 pt-0">
+            {/* Medicine Name */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
                 Medicine Name
               </Label>
               <div className="relative">
-                <Pill className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Pill className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 <Input
                   id="name"
                   type="text"
                   placeholder="e.g., Aspirin"
                   value={formData.name}
                   onChange={(e) => handleChange("name", e.target.value)}
-                  className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  className="pl-11 h-12 sm:h-14 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Dosage and Stock - Stack on mobile */}
+            <div className="space-y-5 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
+              {/* Dosage */}
               <div className="space-y-2">
-                <Label htmlFor="dosage" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="dosage" className="text-sm font-semibold text-gray-700">
                   Dosage
                 </Label>
                 <Select value={formData.dosage} onValueChange={(value) => handleChange("dosage", value)}>
-                  <SelectTrigger className="h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                  <SelectTrigger className="h-12 sm:h-14 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500">
                     <SelectValue placeholder="Select dosage" />
                   </SelectTrigger>
                   <SelectContent>
@@ -98,58 +105,64 @@ export default function AddMedicinePage() {
                 </Select>
               </div>
 
+              {/* Current Stock */}
               <div className="space-y-2">
-                <Label htmlFor="stock" className="text-sm font-medium text-gray-700">
+                <Label htmlFor="stock" className="text-sm font-semibold text-gray-700">
                   Current Stock
                 </Label>
                 <div className="relative">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                   <Input
                     id="stock"
                     type="number"
                     placeholder="e.g., 30"
                     value={formData.stock}
                     onChange={(e) => handleChange("stock", e.target.value)}
-                    className="pl-10 h-12 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    className="pl-11 h-12 sm:h-14 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               </div>
             </div>
 
+            {/* Notes */}
             <div className="space-y-2">
-              <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
-                Notes (Optional)
+              <Label htmlFor="notes" className="text-sm font-semibold text-gray-700">
+                Notes <span className="text-gray-500 font-normal">(Optional)</span>
               </Label>
               <div className="relative">
-                <FileText className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <FileText className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 pointer-events-none" />
                 <Textarea
                   id="notes"
-                  placeholder="Add any special instructions or notes..."
+                  placeholder="Add any special instructions..."
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
-                  className="pl-10 pr-4 py-3 border-gray-300 focus:border-purple-500 focus:ring-purple-500 resize-none min-h-[80px]"
+                  className="pl-11 pr-4 py-3 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 resize-none min-h-[100px]"
                 />
               </div>
             </div>
 
+            {/* Success Message */}
             {success && (
-              <Alert className="bg-green-50 border-green-200">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                <AlertDescription className="text-sm text-green-800 font-medium ml-2">
-                  Medicine added successfully!
-                </AlertDescription>
+              <Alert className="bg-green-50 border-green-200 py-3">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <AlertDescription className="text-sm sm:text-base text-green-800 font-medium">
+                    Medicine added successfully!
+                  </AlertDescription>
+                </div>
               </Alert>
             )}
 
+            {/* Save Button */}
             <Button
               onClick={handleSubmit}
-              className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full h-12 sm:h-14 text-base sm:text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 mt-6"
             >
-              Save
+              Save Medicine
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
