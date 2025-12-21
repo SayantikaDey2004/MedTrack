@@ -5,6 +5,7 @@ import MedTrackHomepage from "@/pages/home.page";
 import ProtectedRoute from "@/components/protected";
 import PublicRoute from "@/components/publicRoute";
 import ForgotPasswordPage from "@/pages/auth/forgotPasswordf.page";
+import AddMedicinePage from "@/pages/AddMedicinepage";
 // import { GoogleAuthButton } from "@/pages/auth/createAccount.page";
 
 
@@ -25,7 +26,13 @@ const Router = createBrowserRouter([
     {
         path: "/forgotPassword",
         element: <ForgotPasswordPage />
-    }
+    },
+    
+    {
+        path: "/addMedicine",
+        element: <AddMedicinePage/>
+    },
+
     // {
     //     path: "/createAccount",
     //     element: <GoogleAuthButton/>
