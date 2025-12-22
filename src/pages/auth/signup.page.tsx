@@ -1,5 +1,6 @@
 import { manualSignUp, signUpWithGoogle } from "@/api/auth"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import {
   Card,
   CardContent,
@@ -31,11 +32,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   try {
     const result = await signInWithPopup(auth, googleAuthProvider);
 
-    // Google Access Token
-    // const credential = GoogleAuthProvider.credentialFromResult(result);
-    // const token = credential?.accessToken;
-
-    // Signed-in user info
     const user = result.user;
    if (!user) return;
 
@@ -51,8 +47,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
     await signUpWithGoogle(payload);
     console.log("Google Sign-In successful:", user);
-      navigate("/");
-    // return { user, token };
+    toast.success("Account created successfully!");
+    navigate("/");
   } catch (error:any) {
     const errorCode = error.code;
     const errorMessage = error.message;
@@ -66,7 +62,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       credential,
     });
 
-    throw error; // rethrow if you want caller to handle it
+    toast.error("Failed to sign up with Google");
+    throw error;
   }
 };
 
@@ -74,11 +71,11 @@ const handleManualSignup = async () => {
   try {
     setError(null)
     if (!name || !email || !password || !confirmPassword) {
-      setError("All fields are required")
+      toast.error("All fields are required")
       return
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      toast.error("Passwords do not match")
       return
     }
     const result = await createUserWithEmailAndPassword(auth,email,password)
@@ -100,16 +97,17 @@ const handleManualSignup = async () => {
     };
      await manualSignUp(payload);
 
+    toast.success("Account created successfully!");
     navigate("/")
   } catch (error: any) {
     console.error("Manual signup failed:", error)
 
     if (error.code === "auth/email-already-in-use") {
-      setError("Email already in use")
+      toast.error("Email already in use")
     } else if (error.code === "auth/weak-password") {
-      setError("Password should be at least 6 characters")
+      toast.error("Password should be at least 6 characters")
     } else {
-      setError("Signup failed. Please try again.")
+      toast.error("Signup failed. Please try again.")
     }
   }
 };

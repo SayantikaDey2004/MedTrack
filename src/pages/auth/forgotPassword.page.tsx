@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "@/config/firebase"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,22 +21,19 @@ import { ArrowLeft } from "lucide-react"
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
   const handleReset = async () => {
     setLoading(true)
-    setError(null)
-    setMessage(null)
 
     try {
       await sendPasswordResetEmail(auth, email)
-      setMessage("Password reset email sent. Check your inbox.")
+      toast.success("Password reset email sent. Check your inbox.")
+      setEmail("")
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message)
+        toast.error(err.message)
       } else {
-        setError("Something went wrong")
+        toast.error("Something went wrong")
       }
     } finally {
       setLoading(false)
@@ -66,14 +64,6 @@ export default function ForgotPasswordPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </FieldGroup>
-
-          {message && (
-            <p className="text-sm text-green-600">{message}</p>
-          )}
-
-          {error && (
-            <p className="text-sm text-red-600">{error}</p>
-          )}
 
           <Button
             className="w-full"

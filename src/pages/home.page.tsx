@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   Plus,
   Calendar,
@@ -7,13 +8,39 @@ import {
   TrendingUp,
   Zap,
   Bell,
+  Pill,
+  AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { getMedicineStats } from '@/api/medicine';
+import useAuth from '@/context/auth.context';
 
 /* =========================
    HomePage Component
 ========================= */
 export default function HomePage() {
+  const { user } = useAuth();
+  const [medicineStats, setMedicineStats] = useState({
+    total: 0,
+    lowStock: 0,
+  });
+
+  // Fetch medicine stats from Firebase
+  useEffect(() => {
+    const fetchStats = async () => {
+      if (user?.uid) {
+        try {
+          const stats = await getMedicineStats(user.uid);
+          setMedicineStats(stats);
+        } catch (error) {
+          console.error('Error fetching medicine stats:', error);
+        }
+      }
+    };
+
+    fetchStats();
+  }, [user?.uid]);
+
   const quickStats = [
     { icon: Calendar, value: '100%', label: 'On Time' },
     { icon: Shield, value: 'Secure', label: 'Privacy' },
@@ -61,8 +88,37 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Medicine Analytics */}
+      <div className="px-3 -mt-5 mb-3">
+        <h2 className="text-sm font-semibold mb-2 text-gray-700">Medicine Analytics</h2>
+        <div className="grid grid-cols-2 gap-2">
+          <Card className="border shadow-sm">
+            <CardContent className="p-2.5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 bg-blue-100 rounded-md">
+                  <Pill className="w-3.5 h-3.5 text-blue-600" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">Total Medicines</p>
+              </div>
+              <p className="text-xl font-bold text-blue-600">{medicineStats.total}</p>
+            </CardContent>
+          </Card>
+          <Card className="border shadow-sm">
+            <CardContent className="p-2.5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 bg-orange-100 rounded-md">
+                  <AlertTriangle className="w-3.5 h-3.5 text-orange-600" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">Low Stock</p>
+              </div>
+              <p className="text-xl font-bold text-orange-600">{medicineStats.lowStock}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Highlights */}
-      <div className="px-3 -mt-5 space-y-2">
+      <div className="px-3 space-y-2">
         {highlights.map((h, i) => (
           <Card key={i} className="border-0 shadow-md">
             <CardContent className="p-2.5 flex gap-2.5">

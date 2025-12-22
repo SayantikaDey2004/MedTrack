@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Edit2, Trash2, Search, Pill, Calendar, Package, Filter, MoreVertical } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Search, Package, Filter, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,41 +7,40 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
+import { MedicineCard } from '@/components/medicine-card';
+import {
+  getMedicines,
+  addMedicine,
+  updateMedicine,
+  deleteMedicine,
+} from '@/api/medicine';
+import type { Medicine, MedicineFilters } from '@/api/medicine';
+import useAuth from '@/context/auth.context';
+import { DocumentSnapshot } from 'firebase/firestore';
+import { Pill, Calendar } from 'lucide-react';
 
 // Type Definitions
-interface Medicine {
-  id: number;
-  name: string;
-  dosage: string;
-  stock: number;
-  notes?: string;
-  addedAt: string;
-}
-
 type FilterType = 'all' | 'low-stock' | 'adequate-stock';
+type SortType = 'name' | 'stock' | 'date';
 
 interface MedicineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (medicine: Omit<Medicine, 'id' | 'addedAt'>) => void;
+  onSave: (medicine: Omit<Medicine, 'id'>) => Promise<void>;
   editingMedicine: Medicine | null;
 }
 
 // Add/Edit Medicine Modal Component
 const MedicineModal: React.FC<MedicineModalProps> = ({ isOpen, onClose, onSave, editingMedicine }) => {
-  const [formData, setFormData] = useState<Omit<Medicine, 'id' | 'addedAt'>>({
+  const [formData, setFormData] = useState<Omit<Medicine, 'id'>>({
     name: '',
     dosage: '',
     stock: 0,
-    notes: ''
+    notes: '',
+    addedAt: '',
   });
+  const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
     if (editingMedicine) {
@@ -49,22 +48,31 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ isOpen, onClose, onSave, 
         name: editingMedicine.name,
         dosage: editingMedicine.dosage,
         stock: editingMedicine.stock,
-        notes: editingMedicine.notes || ''
+        notes: editingMedicine.notes || '',
+        addedAt: editingMedicine.addedAt,
       });
     } else {
       setFormData({
         name: '',
         dosage: '',
         stock: 0,
-        notes: ''
+        notes: '',
+        addedAt: '',
       });
     }
   }, [editingMedicine, isOpen]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (formData.name && formData.dosage && formData.stock !== undefined && formData.stock >= 0) {
-      onSave(formData);
-      onClose();
+      setLoading(true);
+      try {
+        await onSave(formData);
+        onClose();
+      } catch (error) {
+        console.error('Error saving medicine:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -127,11 +135,18 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ isOpen, onClose, onSave, 
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={onClose} className="w-full h-12 text-base">
+          <Button variant="outline" onClick={onClose} className="w-full h-12 text-base" disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="w-full h-12 text-base">
-            {editingMedicine ? 'Update Medicine' : 'Add Medicine'}
+          <Button onClick={handleSubmit} className="w-full h-12 text-base" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              editingMedicine ? 'Update Medicine' : 'Add Medicine'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -191,88 +206,79 @@ const ViewMedicineDialog: React.FC<{ medicine: Medicine | null; onClose: () => v
 
 // Main App Component
 const MedicineTracker: React.FC = () => {
-  const [medicines, setMedicines] = useState<Medicine[]>([
-    {
-      id: 1,
-      name: 'Aspirin',
-      dosage: '100mg',
-      stock: 25,
-      notes: 'Take with food',
-      addedAt: '2025-08-08 11:04:01'
-    },
-    {
-      id: 2,
-      name: 'Vitamin D',
-      dosage: '1000 IU',
-      stock: 8,
-      addedAt: '2025-08-08 10:30:15'
-    },
-    {
-      id: 3,
-      name: 'Metformin',
-      dosage: '500mg',
-      stock: 45,
-      notes: 'For diabetes management',
-      addedAt: '2025-08-07 14:20:30'
-    },
-    {
-      id: 4,
-      name: 'Lisinopril',
-      dosage: '10mg',
-      stock: 3,
-      notes: 'Blood pressure medication - refill soon',
-      addedAt: '2025-08-06 09:15:22'
-    }
-  ]);
-
+  const { user } = useAuth();
+  const [medicines, setMedicines] = useState<Medicine[]>([]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [editingMedicine, setEditingMedicine] = useState<Medicine | null>(null);
   const [viewingMedicine, setViewingMedicine] = useState<Medicine | null>(null);
   const [filterType, setFilterType] = useState<FilterType>('all');
+  const [sortBy, setSortBy] = useState<SortType>('date');
+  const [lastDoc, setLastDoc] = useState<DocumentSnapshot | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageHistory, setPageHistory] = useState<(DocumentSnapshot | null)[]>([null]);
 
-  // debounce search input
+  const pageSize = 10;
+
+  // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 300);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  const filteredMedicines = useMemo(() => {
-    let result = [...medicines];
-    
-    // Search filter
-    const q = debouncedSearch.toLowerCase();
-    if (q) {
-      result = result.filter((med) =>
-        med.name.toLowerCase().includes(q) ||
-        med.dosage.toLowerCase().includes(q) ||
-        (med.notes && med.notes.toLowerCase().includes(q))
-      );
+  // Fetch medicines
+  const fetchMedicines = useCallback(async (pageDoc: DocumentSnapshot | null = null, resetPage = false) => {
+    if (!user?.uid) return;
+
+    setLoading(true);
+    try {
+      const filters: MedicineFilters = {
+        search: debouncedSearch,
+        stockFilter: filterType,
+        sortBy,
+        sortOrder: 'desc',
+        pageSize,
+        lastDoc: pageDoc || undefined,
+      };
+
+      const result = await getMedicines(user.uid, filters);
+      setMedicines(result.data);
+      setLastDoc(result.lastDoc);
+      setHasMore(result.hasMore);
+
+      if (resetPage) {
+        setPage(1);
+        setPageHistory([null]);
+      }
+    } catch (error) {
+      console.error('Error fetching medicines:', error);
+    } finally {
+      setLoading(false);
     }
+  }, [user?.uid, debouncedSearch, filterType, sortBy, pageSize]);
 
-    // Stock filter
-    if (filterType === 'low-stock') {
-      result = result.filter(med => med.stock <= 10);
-    } else if (filterType === 'adequate-stock') {
-      result = result.filter(med => med.stock > 10);
-    }
+  // Load medicines on mount and when filters change
+  useEffect(() => {
+    fetchMedicines(null, true);
+  }, [fetchMedicines]);
 
-    return result;
-  }, [medicines, debouncedSearch, filterType]);
+  const handleAddMedicine = async (medicineData: Omit<Medicine, 'id'>) => {
+    if (!user?.uid) return;
 
-  const handleAddMedicine = (medicineData: Omit<Medicine, 'id' | 'addedAt'>) => {
     const now = new Date();
     const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    
+
     if (editingMedicine) {
-      setMedicines(medicines.map(med => 
-        med.id === editingMedicine.id ? { ...medicineData, id: med.id, addedAt: med.addedAt } : med
-      ));
+      await updateMedicine(editingMedicine.id, medicineData);
       setEditingMedicine(null);
     } else {
-      setMedicines([...medicines, { ...medicineData, id: Date.now(), addedAt: formattedDate }]);
+      await addMedicine({ ...medicineData, addedAt: formattedDate }, user.uid);
     }
+    
+    await fetchMedicines(null, true);
   };
 
   const handleEdit = (medicine: Medicine) => {
@@ -280,44 +286,45 @@ const MedicineTracker: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this medicine?')) {
-      setMedicines((prev) => prev.filter(med => med.id !== id));
+      try {
+        await deleteMedicine(id);
+        await fetchMedicines(pageHistory[page - 1]);
+      } catch (error) {
+        console.error('Error deleting medicine:', error);
+      }
     }
   };
 
-  // Statistics
-  const stats = {
-    total: medicines.length,
-    lowStock: medicines.filter(m => m.stock <= 10).length,
+  const handleNextPage = () => {
+    if (hasMore && lastDoc) {
+      setPageHistory([...pageHistory, lastDoc]);
+      setPage(page + 1);
+      fetchMedicines(lastDoc);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      const newPage = page - 1;
+      const newPageHistory = pageHistory.slice(0, -1);
+      setPageHistory(newPageHistory);
+      setPage(newPage);
+      fetchMedicines(newPageHistory[newPage - 1]);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50">
       <div className="max-w-5xl mx-auto">
         {/* Header - Mobile First */}
-        <div className="sticky top-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 z-10 px-4 pt-3 pb-2 space-y-3">
+        <div className="sticky top-0 bg-linear-to-br from-blue-50 via-white to-purple-50 z-10 px-4 pt-3 pb-2 space-y-3">
           <div className="space-y-1">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Medicine Tracker
             </h1>
             <p className="text-xs text-muted-foreground">Manage your medications and track inventory</p>
-          </div>
-          
-          {/* Stats Cards - Mobile Optimized */}
-          <div className="grid grid-cols-2 gap-2">
-            <Card className="border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground mb-0.5">Total Medicines</p>
-                <p className="text-xl font-bold text-blue-600">{stats.total}</p>
-              </CardContent>
-            </Card>
-            <Card className="border">
-              <CardContent className="p-3">
-                <p className="text-xs text-muted-foreground mb-0.5">Low Stock</p>
-                <p className="text-xl font-bold text-orange-600">{stats.lowStock}</p>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Search and Filter - Mobile First */}
@@ -331,31 +338,48 @@ const MedicineTracker: React.FC = () => {
                 className="pl-9 h-10 text-sm"
               />
             </div>
-            <Select value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
-              <SelectTrigger className="h-10 text-sm">
-                <div className="flex items-center gap-2">
-                  <Filter className="w-3.5 h-3.5" />
-                  <SelectValue placeholder="Filter by stock" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Medicines</SelectItem>
-                <SelectItem value="low-stock">Low Stock Only</SelectItem>
-                <SelectItem value="adequate-stock">Adequate Stock</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 gap-2">
+              <Select value={filterType} onValueChange={(value) => setFilterType(value as FilterType)}>
+                <SelectTrigger className="h-10 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-3.5 h-3.5" />
+                    <SelectValue placeholder="Filter" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Medicines</SelectItem>
+                  <SelectItem value="low-stock">Low Stock</SelectItem>
+                  <SelectItem value="adequate-stock">Adequate Stock</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortType)}>
+                <SelectTrigger className="h-10 text-sm">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Date Added</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="stock">Stock Level</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
         {/* Medicine List - Mobile Optimized */}
-        <div className="px-4 pb-20">
+        <div className="px-4 pb-24">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-muted-foreground">
-              {filteredMedicines.length} {filteredMedicines.length === 1 ? 'Medicine' : 'Medicines'}
+              {medicines.length} {medicines.length === 1 ? 'Medicine' : 'Medicines'}
+              {page > 1 && ` (Page ${page})`}
             </h2>
           </div>
 
-          {filteredMedicines.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+          ) : medicines.length === 0 ? (
             <Card>
               <CardContent className="text-center py-10">
                 <Package className="w-10 h-10 mx-auto mb-3 opacity-50 text-muted-foreground" />
@@ -364,76 +388,48 @@ const MedicineTracker: React.FC = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-2.5">
-              {filteredMedicines.map((medicine) => (
-                <Card 
-                  key={medicine.id}
-                  className="overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <CardContent className="p-3">
-                    {/* Medicine Header */}
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                        <div className="p-2 bg-blue-100 rounded-lg flex-shrink-0">
-                          <Pill className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-sm mb-0.5 break-words leading-tight">
-                            {medicine.name}
-                          </h3>
-                          <p className="text-xs text-muted-foreground mb-1.5">{medicine.dosage}</p>
-                          <Badge 
-                            variant={medicine.stock <= 10 ? 'destructive' : medicine.stock <= 20 ? 'secondary' : 'default'}
-                            className="text-xs font-medium px-2 py-0.5"
-                          >
-                            {medicine.stock} pills
-                          </Badge>
-                        </div>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 flex-shrink-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem onClick={() => setViewingMedicine(medicine)} className="text-sm">
-                            <Package className="w-3.5 h-3.5 mr-2" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEdit(medicine)} className="text-sm">
-                            <Edit2 className="w-3.5 h-3.5 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(medicine.id)}
-                            className="text-sm text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
+            <>
+              <div className="space-y-2.5 mb-4">
+                {medicines.map((medicine) => (
+                  <MedicineCard
+                    key={medicine.id}
+                    medicine={medicine}
+                    onView={setViewingMedicine}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
 
-                    {/* Notes */}
-                    {medicine.notes && (
-                      <div className="bg-muted/50 rounded-md p-2 mb-2">
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {medicine.notes}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Footer with Date */}
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground pt-1.5 border-t">
-                      <Calendar className="w-3 h-3" />
-                      <span>{medicine.addedAt.split(' ')[0]}</span>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+              {/* Pagination Controls */}
+              {(page > 1 || hasMore) && (
+                <div className="flex items-center justify-center gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrevPage}
+                    disabled={page === 1 || loading}
+                    className="flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    Previous
+                  </Button>
+                  <span className="text-sm text-muted-foreground px-3">
+                    Page {page}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={!hasMore || loading}
+                    className="flex items-center gap-1"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

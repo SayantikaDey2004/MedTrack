@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { signInWithEmailAndPassword } from "firebase/auth"
+import { toast } from "sonner"
 import {
   Card,
   CardContent,
@@ -34,17 +35,18 @@ const [error, setError] = useState<string | null>(null);
   try {
     setError(null);
     const result = await signInWithPopup(auth, googleAuthProvider);
-    const user = result.user;// google theke user to peyei ja66e.
-    //tahole amader ke db theke akta query kore check kore nite hbe first e based on the user variable 
+    const user = result.user;
     const isUserPresentInDb = await getUserByEmail(user.email!);
     if (!isUserPresentInDb) {
-      setError("No user found with Google account.");
+      toast.error("No user found with Google account.");
       return;
     }
 
+    toast.success("Logged in successfully!");
     navigate("/");
   } catch (error) {
     console.error("Google login failed:", error);
+    toast.error("Failed to login with Google");
   }
   }
 
@@ -61,27 +63,28 @@ const HandleManualSignin = async () => {
     const user = result.user;
     const isUserPresentInDb = await getUserByEmail(user.email!);
     if (!isUserPresentInDb) {
-      setError("No user found with this email.");
+      toast.error("No user found with this email.");
       return;
     }
+    toast.success("Logged in successfully!");
     navigate("/");
   } catch (error) {
     console.error("Manual login failed:", error);
     if (error instanceof FirebaseError) {
       if (error.code === "auth/wrong-password") {
-        setError("Incorrect password. Please try again.");
+        toast.error("Incorrect password. Please try again.");
       } 
       else if (error.code === "auth/user-not-found") {
-        setError("User not found with this email.");
+        toast.error("User not found with this email.");
       } 
       else if (error.code === "auth/invalid-email") {
-        setError("Invalid email address.");
+        toast.error("Invalid email address.");
       } 
       else {
-        setError("Login failed. Please try again later.");
+        toast.error("Login failed. Please try again later.");
       }
     } else {
-      setError("Something went wrong.");
+      toast.error("Something went wrong.");
     }
   }
 };

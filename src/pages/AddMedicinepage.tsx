@@ -5,18 +5,20 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Pill, Package, FileText, CheckCircle2 } from "lucide-react"
+import { ArrowLeft, Pill, Package, FileText, Power } from "lucide-react"
 import { addMedicine } from "@/api/medicine"
+import useAuth from "@/context/auth.context"
+import { toast } from "sonner"
 
 export default function AddMedicinePage() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     dosage: "",
     stock: "",
-    notes: ""
+    notes: "",
+    isActive: true
   })
-  const [success, setSuccess] = useState<boolean|null>(null);
 
   // const handleSubmit = () => {
   //   if (formData.name && formData.dosage && formData.stock) {
@@ -28,22 +30,38 @@ export default function AddMedicinePage() {
   //   }
   // }
   const handleSubmit=async ()=>{
-    setSuccess(null);
     if(!formData.name || !formData.dosage || !formData.stock){
-      //write some logic to show error message
+      toast.error("Please fill in all required fields");
       return;
     }
+    
+    if (!user?.uid) {
+      console.error("User not authenticated");
+      toast.error("User not authenticated");
+      return;
+    }
+
     try {
-      console.log(formData);
-      await addMedicine(formData);
-      //toast or modal to show success
-      setSuccess(true);
+      // Format date
+      const now = new Date();
+      const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      
+      const medicineData = {
+        name: formData.name,
+        dosage: formData.dosage,
+        stock: Number(formData.stock),
+        notes: formData.notes,
+        isActive: formData.isActive,
+        addedAt: formattedDate,
+      };
+      
+      console.log(medicineData);
+      await addMedicine(medicineData, user.uid);
+      toast.success("Medicine added successfully!");
+      setFormData({ name: "", dosage: "", stock: "", notes: "", isActive: true });
     } catch (error) {
-      setSuccess(false);
       console.error("Error adding medicine:", error);
-    }finally{
-      setSuccess(null)
-      setFormData({ name: "", dosage: "", stock: "", notes: "" });
+      toast.error("Failed to add medicine. Please try again.");
     }
   }
 
@@ -144,6 +162,43 @@ export default function AddMedicinePage() {
               </div>
             </div>
 
+            {/* Active Status Toggle */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-gray-700">
+                Status
+              </Label>
+              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-300 bg-gray-50">
+                <div className="flex items-center gap-3">
+                  <Power className={`h-5 w-5 ${
+                    formData.isActive ? "text-green-600" : "text-gray-400"
+                  }`} />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {formData.isActive ? "Active" : "Inactive"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formData.isActive 
+                        ? "Medicine is currently in use" 
+                        : "Medicine is paused"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, isActive: !prev.isActive }))}
+                  className={`relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                    formData.isActive ? "bg-green-600" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                      formData.isActive ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
             {/* Notes */}
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-sm font-semibold text-gray-700">
@@ -161,17 +216,7 @@ export default function AddMedicinePage() {
               </div>
             </div>
 
-            {/* Success Message */}
-            {success && (
-              <Alert className="bg-green-50 border-green-200 py-3">
-                <div className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
-                  <AlertDescription className="text-sm sm:text-base text-green-800 font-medium">
-                    Medicine added successfully!
-                  </AlertDescription>
-                </div>
-              </Alert>
-            )}
+           
 
             {/* Save Button */}
             <Button
