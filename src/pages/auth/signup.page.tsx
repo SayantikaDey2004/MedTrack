@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { auth, googleAuthProvider } from "@/config/firebase"
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth"
 import { Link, useNavigate } from "react-router"
 import { createUserWithEmailAndPassword } from "firebase/auth"
 import { useState } from "react"
@@ -83,6 +83,12 @@ const handleManualSignup = async () => {
     }
     const result = await createUserWithEmailAndPassword(auth,email,password)
     const user = result.user
+    
+    // Update the user's display name in Firebase Auth
+    await updateProfile(user, {
+      displayName: name
+    })
+    
     const payload = {
       uid: user.uid,
       name: name,
