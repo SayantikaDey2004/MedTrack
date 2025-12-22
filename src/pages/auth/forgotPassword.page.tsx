@@ -8,7 +8,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
+
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
@@ -53,10 +53,7 @@ export default function ForgotPasswordPage() {
             <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Go Back</span>
             </button>
-          <CardTitle>Forgot Password</CardTitle>
-          <CardDescription>
-            Enter your email to receive a password reset link
-          </CardDescription>
+          <CardTitle>Forgot Password</CardTitle>         
         </CardHeader>
 
         <CardContent className="space-y-4">

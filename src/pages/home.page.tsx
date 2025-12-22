@@ -121,7 +121,7 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => navigate('/medicineList')}
+            onClick={() => navigate('/medicine-list')}
             className="flex flex-col items-center text-gray-400"
           >
             <Pill className="w-5 h-5" />
