@@ -6,13 +6,23 @@ import ProtectedRoute from "@/components/protected";
 import PublicRoute from "@/components/publicRoute";
 import ForgotPasswordPage from "@/pages/auth/forgotPassword.page";
 import AddMedicinePage from "@/pages/AddMedicinepage";
+import ProfilePage from "@/pages/profile.page";
 // import { GoogleAuthButton } from "@/pages/auth/createAccount.page";
 
 
 const Router = createBrowserRouter([
     {
         path: "/",
-        element: <ProtectedRoute><MedTrackHomepage /></ProtectedRoute>
+        element: <ProtectedRoute><MedTrackHomepage /></ProtectedRoute>,
+       
+    },
+     {
+        path: "/addMedicine",
+        element: <ProtectedRoute><AddMedicinePage/></ProtectedRoute>
+    },
+    {
+        path: "/profile-page",
+        element: <ProtectedRoute><ProfilePage/></ProtectedRoute>
     },
     {
         path: "/login",
@@ -28,17 +38,11 @@ const Router = createBrowserRouter([
         element: <ForgotPasswordPage />
     },
     
-    {
-        path: "/addMedicine",
-        element: <AddMedicinePage/>
-    },
+    
     // {
     //     path: "/createAccount",
     //     element: <GoogleAuthButton/>
     // },
-    // {
-       // path: "/profilepage",
-       // element: <ProfilePage/>
-  //  } 
+     
 ]);
 export default Router;

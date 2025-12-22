@@ -1,0 +1,25 @@
+LIST
+1. write the proper api to fetch the list from firebase
+2. now add search, sort, filter, and limit in that api
+3. List page design
+3.1. show Caardd with medicine details aand add menubar with edit and delete button
+3.2. Add search , sort design and implementation
+3.3 infinite scroll / pagination (Prev aand next)
+
+
+edit
+1. goto edit page or modal to change the data then Save2. aaafter saving the data the list should be updated
+
+delete
+1. modal -> yes or No
+2. jodi yes hoy tahole db query korbi. then list take update korbi somehow
+3. jodi na hoy taahole sudhu modala take bondho korbi.
+
+
+Profile Page
+Home
+
+ami osudh kkheye6i. eta korar jonno kono aaktaa logic likhte hbe with ui simple (-1 from stock) 
+
+
+notification, push notification,

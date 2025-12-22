@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -42,7 +41,7 @@ function HomePage() {
   return (
     <>
       {/* Hero */}
-      <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 text-white px-3 pt-4 pb-10 rounded-b-[1.5rem] shadow-xl">
+      <div className="bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 text-white px-3.5  pt-4 pb-10 rounded-b-3xl shadow-xl ">
         <h1 className="text-xl font-bold mb-1">
           Take Control of
           <br />
@@ -68,7 +67,7 @@ function HomePage() {
         {highlights.map((h, i) => (
           <Card key={i} className="border-0 shadow-md">
             <CardContent className="p-2.5 flex gap-2.5">
-              <div className={`w-10 h-10 bg-gradient-to-br ${h.color} rounded-lg flex items-center justify-center`}>
+              <div className={`w-10 h-10 bg-linear-to-br ${h.color} rounded-lg flex items-center justify-center`}>
                 <h.icon className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -82,7 +81,7 @@ function HomePage() {
 
       {/* CTA */}
       <div className="px-3 mt-4 mb-3">
-        <Card className="border-0 bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
+        <Card className="border-0 bg-linear-to-r from-emerald-500 to-teal-500 text-white">
           <CardContent className="p-3 text-center">
             <Sparkles className="w-7 h-7 mx-auto mb-1.5" />
             <h3 className="text-xs font-bold">Ready to Get Started?</h3>
@@ -102,13 +101,13 @@ export default function App() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 pb-16">
+    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 pb-16">
       <HomePage />
 
       {/* Floating Add Button */}
       <button
         onClick={() => navigate('/addMedicine')}
-        className="fixed bottom-16 right-3 w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full shadow-lg flex items-center justify-center z-40"
+        className="fixed bottom-16 right-3 w-12 h-12 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full shadow-lg flex items-center justify-center z-40"
       >
         <Plus className="w-5 h-5 text-white" />
       </button>
@@ -130,10 +129,10 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => navigate('/profilePage')}
+            onClick={() => navigate('/profile-page')}
             className="flex flex-col items-center text-gray-400"
           >
-            <User className="w-5 h-5" />
+            <User className="w-6 h-6" />
             <span className="text-[9px]">Profile</span>
           </button>
 

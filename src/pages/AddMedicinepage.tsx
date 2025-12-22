@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, Pill, Package, FileText, CheckCircle2 } from "lucide-react"
+import { addMedicine } from "@/api/medicine"
 
 export default function AddMedicinePage() {
   const [formData, setFormData] = useState({
@@ -15,15 +16,34 @@ export default function AddMedicinePage() {
     stock: "",
     notes: ""
   })
-  const [success, setSuccess] = useState(false)
+  const [success, setSuccess] = useState<boolean|null>(null);
 
-  const handleSubmit = () => {
-    if (formData.name && formData.dosage && formData.stock) {
-      setSuccess(true)
-      setTimeout(() => {
-        setSuccess(false)
-        setFormData({ name: "", dosage: "", stock: "", notes: "" })
-      }, 2000)
+  // const handleSubmit = () => {
+  //   if (formData.name && formData.dosage && formData.stock) {
+  //     setSuccess(true)
+  //     setTimeout(() => {
+  //       setSuccess(false)
+  //       setFormData({ name: "", dosage: "", stock: "", notes: "" })
+  //     }, 2000)
+  //   }
+  // }
+  const handleSubmit=async ()=>{
+    setSuccess(null);
+    if(!formData.name || !formData.dosage || !formData.stock){
+      //write some logic to show error message
+      return;
+    }
+    try {
+      console.log(formData);
+      await addMedicine(formData);
+      //toast or modal to show success
+      setSuccess(true);
+    } catch (error) {
+      setSuccess(false);
+      console.error("Error adding medicine:", error);
+    }finally{
+      setSuccess(null)
+      setFormData({ name: "", dosage: "", stock: "", notes: "" });
     }
   }
 
@@ -35,7 +55,7 @@ export default function AddMedicinePage() {
 }
 
  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-pink-500 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-purple-600 via-purple-500 to-pink-500 relative overflow-hidden">
       {/* Decorative circles - hidden on mobile */}
       <div className="absolute top-10 left-10 h-48 w-48 md:h-64 md:w-64 rounded-full bg-purple-400/20 md:bg-purple-400/30 blur-3xl"></div>
       <div className="absolute bottom-10 right-10 h-56 w-56 md:h-80 md:w-80 rounded-full bg-pink-400/20 md:bg-pink-400/30 blur-3xl"></div>
@@ -47,7 +67,7 @@ export default function AddMedicinePage() {
           <CardHeader className="space-y-4 p-5 sm:p-6 md:p-8">
             <Button 
               variant="ghost"
-              onClick={() => window.history.back()}
+              onClick={() => window.history.back()}//use reacat router
               className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-transparent transition-colors w-fit p-0 h-auto group -ml-1"
             >
               <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
@@ -55,7 +75,7 @@ export default function AddMedicinePage() {
             </Button>
             
             <div>
-              <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
+              <CardTitle className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
                 Add Medicine
               </CardTitle>
               <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
@@ -136,7 +156,7 @@ export default function AddMedicinePage() {
                   placeholder="Add any special instructions..."
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
-                  className="pl-11 pr-4 py-3 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 resize-none min-h-[100px]"
+                  className="pl-11 pr-4 py-3 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 resize-none min-h-25"
                 />
               </div>
             </div>
@@ -145,7 +165,7 @@ export default function AddMedicinePage() {
             {success && (
               <Alert className="bg-green-50 border-green-200 py-3">
                 <div className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
                   <AlertDescription className="text-sm sm:text-base text-green-800 font-medium">
                     Medicine added successfully!
                   </AlertDescription>
@@ -156,7 +176,7 @@ export default function AddMedicinePage() {
             {/* Save Button */}
             <Button
               onClick={handleSubmit}
-              className="w-full h-12 sm:h-14 text-base sm:text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 mt-6"
+              className="w-full h-12 sm:h-14 text-base sm:text-lg bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 mt-6"
             >
               Save Medicine
             </Button>
