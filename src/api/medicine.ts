@@ -110,6 +110,8 @@ const getMedicines = async (
   filters: MedicineFilters = {}
 ): Promise<PaginatedResponse<Medicine>> => {
   try {
+    console.log('getMedicines called with userId:', userId, 'filters:', filters);
+    
     const {
       search = '',
       stockFilter = 'all',
@@ -148,12 +150,16 @@ const getMedicines = async (
     }
     q = query(q, limit(pageSize + 1)); // Get one extra to check if there are more
 
+    console.log('Executing query...');
     const querySnapshot = await getDocs(q);
+    console.log('Query snapshot size:', querySnapshot.size);
+    
     const medicines: Medicine[] = [];
     let lastDocument: DocumentSnapshot | null = null;
     let hasMore = false;
 
     querySnapshot.docs.forEach((doc, index) => {
+      console.log('Document', index, ':', doc.id, doc.data());
       if (index < pageSize) {
         const data = doc.data();
         medicines.push({
@@ -172,6 +178,8 @@ const getMedicines = async (
       }
     });
 
+    console.log('Parsed medicines:', medicines.length);
+
     // Client-side search filter (since Firestore doesn't support contains)
     let filteredMedicines = medicines;
     if (search) {
@@ -183,6 +191,8 @@ const getMedicines = async (
           (med.notes && med.notes.toLowerCase().includes(searchLower))
       );
     }
+
+    console.log('Filtered medicines:', filteredMedicines.length);
 
     return {
       data: filteredMedicines,

@@ -231,8 +231,11 @@ const MedicineTracker: React.FC = () => {
 
   // Fetch medicines
   const fetchMedicines = useCallback(async (pageDoc: DocumentSnapshot | null = null, resetPage = false) => {
-    if (!user?.uid) return;
-
+    if (!user?.uid) {
+      console.log('No user UID found');
+      return;
+    }
+    console.log('Fetching medicines for user:', user.uid);
     setLoading(true);
     try {
       const filters: MedicineFilters = {
@@ -244,7 +247,9 @@ const MedicineTracker: React.FC = () => {
         lastDoc: pageDoc || undefined,
       };
 
+      console.log('Filters:', filters);
       const result = await getMedicines(user.uid, filters);
+      console.log('Fetched medicines:', result);
       setMedicines(result.data);
       setLastDoc(result.lastDoc);
       setHasMore(result.hasMore);
