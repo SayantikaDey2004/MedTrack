@@ -1,22 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Home,
-  Pill,
-  User,
-  Bell,
   Plus,
   Calendar,
   Shield,
   Sparkles,
   TrendingUp,
   Zap,
+  Bell,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 /* =========================
    HomePage Component
 ========================= */
-function HomePage() {
+export default function HomePage() {
   const quickStats = [
     { icon: Calendar, value: '100%', label: 'On Time' },
     { icon: Shield, value: 'Secure', label: 'Privacy' },
@@ -37,6 +34,8 @@ function HomePage() {
       color: 'from-orange-500 to-red-500',
     },
   ];
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -93,16 +92,6 @@ function HomePage() {
           </CardContent>
         </Card>
       </div>
-    </>
-  );
-}
-
-export default function App() {
-  const navigate = useNavigate();
-
-  return (
-    <div className="min-h-screen bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 pb-16">
-      <HomePage />
 
       {/* Floating Add Button */}
       <button
@@ -111,33 +100,6 @@ export default function App() {
       >
         <Plus className="w-5 h-5 text-white" />
       </button>
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-50">
-        <div className="flex justify-around py-1.5">
-          
-          <button className="flex flex-col items-center text-indigo-600">
-            <Home className="w-5 h-5 fill-indigo-600" />
-            <span className="text-[9px]">Home</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/medicine-list')}
-            className="flex flex-col items-center text-gray-400"
-          >
-            <Pill className="w-5 h-5" />
-            <span className="text-[9px]">Medicine</span>
-          </button>
-
-          <button
-            onClick={() => navigate('/profile-page')}
-            className="flex flex-col items-center text-gray-400"
-          >
-            <User className="w-6 h-6" />
-            <span className="text-[9px]">Profile</span>
-          </button>
-
-        </div>
-      </div>
-    </div>
+    </>
   );
 }

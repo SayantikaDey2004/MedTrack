@@ -8,42 +8,45 @@ import ForgotPasswordPage from "@/pages/auth/forgotPassword.page";
 import AddMedicinePage from "@/pages/AddMedicinepage";
 import ProfilePage from "@/pages/profile.page";
 import MedicineTracker from "@/pages/medicineList.page";
+import Layout from "@/components/layout";
 // import { GoogleAuthButton } from "@/pages/auth/createAccount.page";
 
 
 const Router = createBrowserRouter([
     {
         path: "/",
-        element: <ProtectedRoute><MedTrackHomepage /></ProtectedRoute>,
-       
-    },
-     {
-        path: "/addMedicine",
-        element: <ProtectedRoute><AddMedicinePage/></ProtectedRoute>
-    },
-    {
-        path: "/profile-page",
-        element: <ProtectedRoute><ProfilePage/></ProtectedRoute>
+        element: <ProtectedRoute><Layout /></ProtectedRoute>,
+        children: [
+            {
+                index: true,
+                element: <MedTrackHomepage />,
+            },
+            {
+                path: "addMedicine",
+                element: <AddMedicinePage />
+            },
+            {
+                path: "profile-page",
+                element: <ProfilePage />
+            },
+            {
+                path: "medicine-list",
+                element: <MedicineTracker />
+            }
+        ]
     },
     {
         path: "/login",
         element: <PublicRoute><LoginForm /></PublicRoute>
     },
-{
+    {
         path: "/signup",
         element: <PublicRoute><SignupForm /></PublicRoute>
     },
-
     {
         path: "/forgotPassword",
         element: <ForgotPasswordPage />
-    },
-
-    {
-        path: "/medicine-list",
-        element: <MedicineTracker/>
     }
-    
     
     // {
     //     path: "/createAccount",

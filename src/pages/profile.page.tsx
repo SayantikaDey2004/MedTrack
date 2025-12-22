@@ -1,8 +1,7 @@
 import  { useState } from 'react';
-import { Bell, LogOut, ChevronRight, Mail, Home, Pill, User} from 'lucide-react';
+import { Bell, LogOut, ChevronRight, Mail } from 'lucide-react';
 
 import useAuth from '@/context/auth.context';
-import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 
@@ -10,8 +9,6 @@ export default function ProfilePage() {
   const {user} = useAuth();
   const {displayName, email} = user || {};
   const [notifications, setNotifications] = useState(true);
-  const [activeTab, setActiveTab] = useState('profile');
-  const navigate = useNavigate();
 
 console.log(user)
 
@@ -103,47 +100,10 @@ const handleLogout = async () => {
         </div>
 
         {/* Logout Button */}
-        <button onClick={handleLogout} className="w-full bg-white rounded-2xl shadow-md p-6 mb-24 flex items-center justify-center gap-3 text-red-500 font-semibold hover:bg-red-50 transition-colors">
+        <button onClick={handleLogout} className="w-full bg-white rounded-2xl shadow-md p-6 mb-6 flex items-center justify-center gap-3 text-red-500 font-semibold hover:bg-red-50 transition-colors">
           <LogOut className="w-5 h-5" />
           Log Out
         </button>
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4">
-        <div className="flex justify-around items-center max-w-md mx-auto">          
-         
-          <button
-            onClick={() => navigate('/') && setActiveTab('home')}
-            className={`flex flex-col items-center gap-1 py-2 px-4 transition-all min-w-15 ${
-              activeTab === 'home' ? 'text-purple-600' : 'text-gray-400'
-            }`}
-          >
-            <Home className={`w-6 h-6 ${activeTab === 'home' ? 'fill-purple-600' : ''}`} />
-            <span className="text-xs font-medium">Home</span>
-          </button>
-         
-
-          <button
-            onClick={() => setActiveTab('medicine')}
-            className={`flex flex-col items-center gap-1 py-2 px-4 transition-all min-w-15${
-              activeTab === 'medicine' ? 'text-purple-600' : 'text-gray-400'
-            }`}
-          >
-            <Pill className={`w-6 h-6 ${activeTab === 'medicine' ? 'fill-purple-600' : ''}`} />
-            <span className="text-xs font-medium">Medicine</span>
-          </button>
-          
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`flex flex-col items-center gap-1 py-2 px-4 transition-all min-w-15 ${
-              activeTab === 'profile' ? 'text-purple-600' : 'text-gray-400'
-            }`}
-          >
-            <User className={`w-6 h-6 ${activeTab === 'profile' ? 'fill-purple-600' : ''}`} />
-            <span className="text-xs font-medium">Profile</span>
-          </button>
-        </div>
       </div>
     </div>
   );
