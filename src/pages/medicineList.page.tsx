@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Package, Filter, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Search, Package, Filter, ChevronLeft, ChevronRight, Loader2, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ import type { Medicine, MedicineFilters } from '@/api/medicine';
 import useAuth from '@/context/auth.context';
 import { DocumentSnapshot } from 'firebase/firestore';
 import { Pill, Calendar } from 'lucide-react';
+import {  useNavigate } from 'react-router-dom';
 
 // Type Definitions
 type FilterType = 'all' | 'low-stock' | 'adequate-stock';
@@ -41,7 +42,7 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ isOpen, onClose, onSave, 
     addedAt: '',
   });
   const [loading, setLoading] = useState(false);
-
+  
   React.useEffect(() => {
     if (editingMedicine) {
       setFormData({
@@ -207,6 +208,7 @@ const ViewMedicineDialog: React.FC<{ medicine: Medicine | null; onClose: () => v
 // Main App Component
 const MedicineTracker: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -454,6 +456,12 @@ const MedicineTracker: React.FC = () => {
         medicine={viewingMedicine}
         onClose={() => setViewingMedicine(null)}
       />
+       <button
+        onClick={() => navigate('/addMedicine')}
+        className="fixed bottom-16 right-3 w-12 h-12 bg-linear-to-r from-indigo-600 to-purple-600 rounded-full shadow-lg flex items-center justify-center z-40"
+      >
+        <Plus className="w-5 h-5 text-white" />
+      </button>
     </div>
   );
 };

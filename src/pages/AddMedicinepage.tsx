@@ -216,8 +216,6 @@ export default function AddMedicinePage() {
               </div>
             </div>
 
-           
-
             {/* Save Button */}
             <Button
               onClick={handleSubmit}
