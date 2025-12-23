@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router';
-import { Home, Pill, User } from 'lucide-react';
+import { Home, Pill, User, CheckSquare } from 'lucide-react';
 
 export default function BottomNavbar() {
   const navigate = useNavigate();
@@ -18,6 +18,16 @@ export default function BottomNavbar() {
         >
           <Home className={`w-5 h-5 ${isActive('/') ? 'fill-indigo-600' : ''}`} />
           <span className="text-[9px]">Home</span>
+        </button>
+
+        <button
+          onClick={() => navigate('/today')}
+          className={`flex flex-col items-center ${
+            isActive('/today') ? 'text-indigo-600' : 'text-gray-400'
+          }`}
+        >
+          <CheckSquare className={`w-5 h-5 ${isActive('/today') ? 'fill-indigo-600' : ''}`} />
+          <span className="text-[9px]">Today</span>
         </button>
 
         <button

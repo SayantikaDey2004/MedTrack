@@ -14,12 +14,14 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { getMedicineStats } from '@/api/medicine';
 import useAuth from '@/context/auth.context';
+import LoadingSpinner from '@/components/ui/loading';
 
 /* =========================
    HomePage Component
 ========================= */
 export default function HomePage() {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
   const [medicineStats, setMedicineStats] = useState({
     total: 0,
     lowStock: 0,
@@ -30,11 +32,16 @@ export default function HomePage() {
     const fetchStats = async () => {
       if (user?.uid) {
         try {
+          setLoading(true);
           const stats = await getMedicineStats(user.uid);
           setMedicineStats(stats);
         } catch (error) {
           console.error('Error fetching medicine stats:', error);
+        } finally {
+          setLoading(false);
         }
+      } else {
+        setLoading(false);
       }
     };
 
@@ -64,10 +71,14 @@ export default function HomePage() {
 
   const navigate = useNavigate();
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <>
       {/* Hero */}
-      <div className="bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 text-white px-3.5  pt-4 pb-10 rounded-b-3xl shadow-xl ">
+      <div className="bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 text-white px-3.5  pt-4 pb-10 rounded-b-3xl shadow-xl ">{" "}
         <h1 className="text-xl font-bold mb-1">
           Take Control of
           <br />

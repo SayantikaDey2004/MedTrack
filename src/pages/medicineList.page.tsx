@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { MedicineCard } from '@/components/medicine-card';
+import LoadingSpinner from '@/components/ui/loading';
 import {
   getMedicines,
   addMedicine,
@@ -210,7 +211,7 @@ const MedicineTracker: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [medicines, setMedicines] = useState<Medicine[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -322,9 +323,14 @@ const MedicineTracker: React.FC = () => {
     }
   };
 
+  // Show loading spinner on initial load
+  if (loading && medicines.length === 0) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto">{" "}
         {/* Header - Mobile First */}
         <div className="sticky top-0 bg-linear-to-br from-blue-50 via-white to-purple-50 z-10 px-4 pt-3 pb-2 space-y-3">
           <div className="space-y-1">

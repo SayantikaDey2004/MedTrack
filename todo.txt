@@ -1,9 +1,4 @@
 
-delete
-1. modal -> yes or No
-2. jodi yes hoy tahole db query korbi. then list take update korbi somehow
-3. jodi na hoy taahole sudhu modala take bondho korbi.
-
 Home
 
 ami osudh kkheye6i. eta korar jonno kono aaktaa logic likhte hbe with ui simple (-1 from stock) 

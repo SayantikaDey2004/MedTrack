@@ -138,7 +138,6 @@ export default function AddMedicinePage() {
                     <SelectItem value="twice">Twice daily</SelectItem>
                     <SelectItem value="thrice">Three times daily</SelectItem>
                     <SelectItem value="four">Four times daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

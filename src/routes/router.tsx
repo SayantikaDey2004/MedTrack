@@ -8,6 +8,7 @@ import ForgotPasswordPage from "@/pages/auth/forgotPassword.page";
 import AddMedicinePage from "@/pages/AddMedicinepage";
 import ProfilePage from "@/pages/profile.page";
 import MedicineTracker from "@/pages/medicineList.page";
+import TodayMedicinesPage from "@/pages/todayMedicines.page";
 import Layout from "@/components/layout";
 // import { GoogleAuthButton } from "@/pages/auth/createAccount.page";
 
@@ -32,6 +33,10 @@ const Router = createBrowserRouter([
             {
                 path: "medicine-list",
                 element: <MedicineTracker />
+            },
+            {
+                path: "today",
+                element: <TodayMedicinesPage />
             }
         ]
     },
