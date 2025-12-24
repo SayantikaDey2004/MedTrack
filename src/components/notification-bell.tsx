@@ -72,10 +72,10 @@ export default function NotificationBell({ onClick }: NotificationBellProps) {
     }
   };
 
-  const getTimeAgo = (timestamp: any) => {
+  const getTimeAgo = (timestamp: { toDate?: () => Date } | Date | string | null | undefined) => {
     if (!timestamp) return 'just now';
     
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const date = typeof timestamp === 'object' && timestamp && 'toDate' in timestamp && timestamp.toDate ? timestamp.toDate() : new Date(timestamp as string | Date);
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
     

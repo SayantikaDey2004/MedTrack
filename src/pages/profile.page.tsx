@@ -1,14 +1,13 @@
-import  { useState } from 'react';
-import { Bell, LogOut, ChevronRight, Mail } from 'lucide-react';
+import { LogOut, ChevronRight, Mail } from 'lucide-react';
 
 import useAuth from '@/context/auth.context';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/config/firebase';
+import { NotificationSettings } from '@/components/notification-setup';
 
 export default function ProfilePage() {
   const {user} = useAuth();
   const {displayName, email} = user || {};
-  const [notifications, setNotifications] = useState(true);
 
 console.log(user)
 
@@ -74,29 +73,7 @@ const handleLogout = async () => {
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-5 md:p-6 mb-4 sm:mb-5 md:mb-6">
           <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Settings</h3>
           
-          <div className="space-y-3 sm:space-y-4">
-            <div className="flex items-center justify-between py-2 sm:py-3 border-b border-gray-100">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                <div>
-                  <div className="text-sm sm:text-base text-gray-900 font-medium">Notifications</div>
-                  <div className="text-xs sm:text-sm text-gray-500">Enable push notifications</div>
-                </div>
-              </div>
-              <button
-                onClick={() => setNotifications(!notifications)}
-                className={`relative w-11 h-6 sm:w-12 sm:h-6 rounded-full transition-colors ${
-                  notifications ? 'bg-linear-to-r from-purple-600 to-pink-500' : 'bg-gray-300'
-                }`}
-              >
-                <div
-                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                    notifications ? 'translate-x-6' : ''
-                  }`}
-                />
-              </button>
-            </div>                                           
-          </div>
+          <NotificationSettings />
         </div>
 
         {/* Logout Button */}

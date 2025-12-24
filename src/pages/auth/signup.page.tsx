@@ -1,4 +1,4 @@
-import { manualSignUp, signUpWithGoogle } from "@/api/auth"
+import { manualSignUp, signUpWithGoogle, type UserPayload } from "@/api/auth"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import logo from "@/assets/logo.svg"
@@ -18,21 +18,21 @@ import { Input } from "@/components/ui/input"
 import { auth, googleAuthProvider } from "@/config/firebase"
 import { getAdditionalUserInfo, signInWithPopup, updateProfile } from "firebase/auth"
 import { Link, useNavigate } from "react-router"
-import { createUserWithEmailAndPassword ,fetchSignInMethodsForEmail} from "firebase/auth"
+import { createUserWithEmailAndPassword, fetchSignInMethodsForEmail } from "firebase/auth"
 import { useState } from "react"
 import { FirebaseError } from "firebase/app"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const navigate = useNavigate();
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [name, setName] = useState<string>("")
+  const [email, setEmail] = useState<string>("")
+  const [password, setPassword] = useState<string>("")
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
 
 
 
-const handleSignUpWithGoogle = async () => {
+const handleSignUpWithGoogle = async (): Promise<void> => {
   try {
     const result = await signInWithPopup(auth, googleAuthProvider)
     const user = result.user
@@ -42,10 +42,10 @@ const handleSignUpWithGoogle = async () => {
     const info = getAdditionalUserInfo(result)
     const isNewUser = info?.isNewUser
 
-    const payload = {
+    const payload: UserPayload = {
       uid: user.uid,
-      name: user.displayName,
-      email: user.email,
+      displayName: user.displayName || "User",
+      email: user.email || "",
       photoURL: user.photoURL,
       provider: "google",
       createdAt: new Date(),
@@ -80,7 +80,7 @@ const handleSignUpWithGoogle = async () => {
 }
 
 
-const handleManualSignup = async () => {
+const handleManualSignup = async (): Promise<void> => {
   try {
     setError(null)
     if (!name || !email || !password || !confirmPassword) {
@@ -99,10 +99,10 @@ const handleManualSignup = async () => {
       displayName: name
     })
     
-    const payload = {
+    const payload: UserPayload = {
       uid: user.uid,
-      name: name,
-      email: user.email,
+      displayName: name,
+      email: user.email || email,
       photoURL: user.photoURL,
       provider: "manual",
       createdAt: new Date(),

@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getMessaging, isSupported } from "firebase/messaging";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,7 +22,16 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-const auth = getAuth(app);//normal auth
+const auth = getAuth(app); // normal auth
 const googleAuthProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
-export { app, analytics, auth, googleAuthProvider,db };
+
+// Initialize messaging (only if supported)
+let messaging;
+isSupported().then((supported) => {
+  if (supported) {
+    messaging = getMessaging(app);
+  }
+});
+
+export { app, analytics, auth, googleAuthProvider, db, messaging };

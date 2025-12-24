@@ -8,11 +8,14 @@
  */
 
 import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
-import * as logger from "firebase-functions/logger";
+// import {onRequest} from "firebase-functions/https";
+// import * as logger from "firebase-functions/logger";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
+
+// Import notification functions
+export { medicineReminders } from "./scheduled/reminders";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript

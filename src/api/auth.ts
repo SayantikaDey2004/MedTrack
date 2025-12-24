@@ -1,16 +1,27 @@
 import { db } from "@/config/firebase";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 
-async function signUpWithGoogle(payload){
+export interface UserPayload {
+    email: string;
+    displayName?: string;
+    photoURL?: string | null;
+    uid?: string;
+    provider?: "google" | "manual";
+    createdAt?: Date;
+    updatedAt?: Date;
+    [key: string]: unknown;
+}
+
+async function signUpWithGoogle(payload: UserPayload){
     try{
-        const docRef = await addDoc(collection(db, "users"), payload);
+        await addDoc(collection(db, "users"), payload);
         // console.log("User signed up with Google, document ID:", docRef.id);
     } catch(error){
         console.error("Error during Google Sign-Up:", error);
         throw error;
     }
 }
-async function getUserByEmail(email: string) {
+async function getUserByEmail() {
     try {
          const docRef = doc(db, "users", "email");
         const docSnap = await getDoc(docRef);
@@ -25,10 +36,10 @@ async function getUserByEmail(email: string) {
     }
 }
 
-async function manualSignUp(payload){
+async function manualSignUp(payload: UserPayload){
     try{
        
-        const docRef = await addDoc(collection(db, "users"), payload);
+        await addDoc(collection(db, "users"), payload);
         // console.log("User signed up manually, document ID:", docRef.id);
     } catch(error){
         console.error("Error during Manual Sign-Up:", error);
