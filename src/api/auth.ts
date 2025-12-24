@@ -3,7 +3,6 @@ import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 
 async function signUpWithGoogle(payload){
     try{
-       
         const docRef = await addDoc(collection(db, "users"), payload);
         // console.log("User signed up with Google, document ID:", docRef.id);
     } catch(error){

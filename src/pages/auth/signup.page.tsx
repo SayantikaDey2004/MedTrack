@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { auth, googleAuthProvider } from "@/config/firebase"
-import { GoogleAuthProvider, signInWithPopup, updateProfile } from "firebase/auth"
+import { GoogleAuthProvider,getAdditionalUserInfo, signInWithPopup, updateProfile } from "firebase/auth"
 import { Link, useNavigate } from "react-router"
-import { createUserWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword ,fetchSignInMethodsForEmail} from "firebase/auth"
 import { useState } from "react"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -28,12 +28,17 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
 
-  const handleSignUpWithGoogle = async () => {
-  try {
-    const result = await signInWithPopup(auth, googleAuthProvider);
 
-    const user = result.user;
-   if (!user) return;
+
+const handleSignUpWithGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleAuthProvider)
+    const user = result.user
+    if (!user || !user.email) return
+
+    // 🔍 Firebase tells us if this is a new account
+    const info = getAdditionalUserInfo(result)
+    const isNewUser = info?.isNewUser
 
     const payload = {
       uid: user.uid,
@@ -43,29 +48,35 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       provider: "google",
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
+    }
 
-    await signUpWithGoogle(payload);
-    console.log("Google Sign-In successful:", user);
-    toast.success("Account created successfully!");
-    navigate("/");
-  } catch (error:any) {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    const email = error.customData?.email;
-    const credential = GoogleAuthProvider.credentialFromError(error);
+    if (isNewUser) {
+      // 🆕 First-time Google signup
+      await signUpWithGoogle(payload)
+      toast.success("Account created successfully!")
+    } else {
+      // 🔁 Existing user (Google or linked account)
+      toast.success("Welcome back!")
+    }
 
-    console.error("Google Sign-In Error:", {
-      errorCode,
-      errorMessage,
-      email,
-      credential,
-    });
+    navigate("/")
+  } catch (error: any) {
+    console.error("Google Sign-In Error:", error)
 
-    toast.error("Failed to sign up with Google");
-    throw error;
+    // 🔴 Manual-first user trying Google
+    if (error.code === "auth/account-exists-with-different-credential") {
+      toast.error(
+        "This email is already registered with Email & Password. Please sign in manually first."
+      )
+      return
+    }
+
+    if (error.code === "auth/popup-closed-by-user") return
+
+    toast.error("Failed to continue with Google")
   }
-};
+}
+
 
 const handleManualSignup = async () => {
   try {
@@ -103,7 +114,21 @@ const handleManualSignup = async () => {
     console.error("Manual signup failed:", error)
 
     if (error.code === "auth/email-already-in-use") {
-      toast.error("Email already in use")
+      try {
+        const providers = await fetchSignInMethodsForEmail(auth, email)
+        console.log("Existing providers for email:", providers)
+        // ✅ Case: previously signed up with Google
+        if (providers.includes("google.com")) {
+          toast.info("This email is registered with Google. Please continue with Google.")
+          return
+        }
+
+        // ❌ Email exists with password already
+        toast.error("This email is already registered. Please sign in using email and password.")
+      } catch (linkError) {
+        console.error("Account linking failed:", linkError)
+        toast.error("Failed to link account. Please try again.")
+      }
     } else if (error.code === "auth/weak-password") {
       toast.error("Password should be at least 6 characters")
     } else {

@@ -16,10 +16,9 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Link, useNavigate } from "react-router"
-import { signInWithPopup } from "firebase/auth"
-import { auth, googleAuthProvider } from "@/config/firebase"
+import { signInWithPopup,getAdditionalUserInfo,deleteUser } from "firebase/auth"
+import { auth, googleAuthProvider} from "@/config/firebase"
 import { useState } from "react"
-import { getUserByEmail } from "@/api/auth"
 import { FirebaseError } from "firebase/app"
 
 export function LoginForm({
@@ -31,23 +30,36 @@ const [email, setEmail] = useState<string>("");
 const [password, setPassword] = useState<string>("");
 
 const [error, setError] = useState<string | null>(null);
+
   const handleLoginWithGoogle = async () => {
   try {
     setError(null);
     const result = await signInWithPopup(auth, googleAuthProvider);
     const user = result.user;
-    const isUserPresentInDb = await getUserByEmail(user.email!);
-    if (!isUserPresentInDb) {
-      toast.error("No user found with Google account.");
+    // Check if this is a brand new account
+    const { isNewUser } = getAdditionalUserInfo(result);
+    if (isNewUser) {
+      // 1. Delete the newly created auth user so they aren't "registered"
+      await deleteUser(user);
+      
+      // 2. Inform the user
+      toast.error("No account found. Please sign up first.");
       return;
-    }
-
-    toast.success("Logged in successfully!");
+    }else{
+  toast.success("Logged in successfully!");
     navigate("/");
-  } catch (error) {
-    console.error("Google login failed:", error);
-    toast.error("Failed to login with Google");
-  }
+    }
+    // const isUserPresentInDb = await getUserByEmail(user.email!);
+    // if (!isUserPresentInDb) {
+    //   toast.error("No user found with Google account.");
+    //   return;
+    // }
+
+  
+    } catch (error) {
+      console.error("Google login failed:", error);
+      toast.error("Failed to login with Google");
+    }
   }
 
 
@@ -61,11 +73,11 @@ const HandleManualSignin = async () => {
       password
     );
     const user = result.user;
-    const isUserPresentInDb = await getUserByEmail(user.email!);
-    if (!isUserPresentInDb) {
-      toast.error("No user found with this email.");
-      return;
-    }
+    // const isUserPresentInDb = await getUserByEmail(user.email!);
+    // if (!isUserPresentInDb) {
+    //   toast.error("No user found with this email.");
+    //   return;
+    // }
     toast.success("Logged in successfully!");
     navigate("/");
   } catch (error) {
