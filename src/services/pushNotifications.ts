@@ -144,10 +144,31 @@ export const getNotificationPermission = (): NotificationPermission => {
 
 // Disable push notifications
 export const disablePushNotifications = async (userId: string) => {
-  const userRef = doc(db, 'users', userId);
-  const { setDoc } = await import('firebase/firestore');
-  
-  await setDoc(userRef, {
-    pushEnabled: false
-  }, { merge: true });
+  try {
+    const userRef = doc(db, 'users', userId);
+    const { setDoc } = await import('firebase/firestore');
+    
+    // Unsubscribe from push notifications
+    if ('serviceWorker' in navigator) {
+      const registration = await navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js');
+      if (registration) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+          console.log('Push subscription unsubscribed');
+        }
+      }
+    }
+    
+    // Update Firestore - remove all FCM tokens and disable push
+    await setDoc(userRef, {
+      pushEnabled: false,
+      fcmTokens: []
+    }, { merge: true });
+    
+    console.log('Push notifications disabled');
+  } catch (error) {
+    console.error('Error disabling push notifications:', error);
+    throw error;
+  }
 };

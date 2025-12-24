@@ -20,6 +20,12 @@ export default function NotificationSetup() {
   const [showPrompt, setShowPrompt] = useState(true);
 
   useEffect(() => {
+    // Only check permissions if user is logged in
+    if (!user) {
+      setShowPrompt(false);
+      return;
+    }
+
     // Check if notifications are supported
     const supported = areNotificationsSupported();
     setIsSupported(supported);
@@ -31,9 +37,12 @@ export default function NotificationSetup() {
       // Hide prompt if already granted or denied
       if (currentPermission !== 'default') {
         setShowPrompt(false);
+      } else {
+        // Show prompt only for logged-in users with default permission
+        setShowPrompt(true);
       }
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (permission === 'granted' && user?.uid) {
@@ -90,6 +99,11 @@ export default function NotificationSetup() {
     // Store dismissal in localStorage to not show again for a while
     localStorage.setItem('notificationPromptDismissed', new Date().toISOString());
   };
+
+  // Don't show if user is not logged in
+  if (!user) {
+    return null;
+  }
 
   // Don't show if not supported or already decided
   if (!isSupported || !showPrompt || permission === 'denied') {
@@ -148,6 +162,7 @@ export function NotificationSettings() {
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSupported, setIsSupported] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
 
   useEffect(() => {
     const supported = areNotificationsSupported();
@@ -155,22 +170,45 @@ export function NotificationSettings() {
 
     if (supported) {
       setPermission(getNotificationPermission());
+      
+      // Check if push is enabled in Firestore
+      checkPushStatus();
     }
-  }, []);
+  }, [user]);
+
+  const checkPushStatus = async () => {
+    if (!user?.uid) return;
+    
+    try {
+      const { doc, getDoc } = await import('firebase/firestore');
+      const { db } = await import('@/config/firebase');
+      
+      const userRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        setPushEnabled(data.pushEnabled === true);
+      }
+    } catch (error) {
+      console.error('Error checking push status:', error);
+    }
+  };
 
   const handleToggleNotifications = async () => {
     if (!user?.uid) return;
 
     setIsLoading(true);
     try {
-      if (permission === 'granted') {
+      if (pushEnabled) {
         await disablePushNotifications(user.uid);
-        setPermission('default');
+        setPushEnabled(false);
         toast.success('Push notifications disabled');
       } else {
         const token = await requestNotificationPermission(user.uid);
         if (token) {
           setPermission('granted');
+          setPushEnabled(true);
           toast.success('Push notifications enabled');
         }
       }
@@ -197,8 +235,8 @@ export function NotificationSettings() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-full ${permission === 'granted' ? 'bg-green-100' : 'bg-gray-100'}`}>
-            {permission === 'granted' ? (
+          <div className={`p-2 rounded-full ${pushEnabled ? 'bg-green-100' : 'bg-gray-100'}`}>
+            {pushEnabled ? (
               <Bell className="w-5 h-5 text-green-600" />
             ) : (
               <BellOff className="w-5 h-5 text-gray-600" />
@@ -207,7 +245,7 @@ export function NotificationSettings() {
           <div>
             <p className="font-medium text-sm">Push Notifications</p>
             <p className="text-xs text-gray-500">
-              {permission === 'granted' ? 'Enabled' : permission === 'denied' ? 'Blocked' : 'Disabled'}
+              {pushEnabled ? 'Active - Receiving notifications' : permission === 'denied' ? 'Blocked by browser' : 'Inactive - Not receiving notifications'}
             </p>
           </div>
         </div>
@@ -216,15 +254,20 @@ export function NotificationSettings() {
             onClick={handleToggleNotifications}
             disabled={isLoading}
             size="sm"
-            variant={permission === 'granted' ? 'outline' : 'default'}
+            variant={pushEnabled ? 'outline' : 'default'}
           >
-            {permission === 'granted' ? 'Disable' : 'Enable'}
+            {pushEnabled ? 'Disable' : 'Enable'}
           </Button>
         )}
       </div>
       {permission === 'denied' && (
         <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
           Notifications are blocked. Please enable them in your browser settings.
+        </p>
+      )}
+      {!pushEnabled && permission === 'granted' && (
+        <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+          Push notifications are disabled. You won't receive any notifications. Browser permission remains granted but is inactive.
         </p>
       )}
     </div>
