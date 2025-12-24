@@ -1,6 +1,7 @@
 import { manualSignUp, signUpWithGoogle } from "@/api/auth"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
+import logo from "@/assets/logo.svg"
 import {
   Card,
   CardContent,
@@ -138,9 +139,13 @@ const handleManualSignup = async () => {
 };
 
   return (
-    <Card {...props}>
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
+    <>
+      <div className="flex justify-center mb-4">
+        <img src={logo} alt="MedTrack Logo" className="h-20 w-20" />
+      </div>
+      <Card {...props}>
+        <CardHeader>
+          <CardTitle>Create an account</CardTitle>
       {/* <CardDescription>
           Enter your information below to create your account
         </CardDescription> */}
@@ -212,6 +217,6 @@ const handleManualSignup = async () => {
         )}
       </CardContent>
     </Card>
-    
+    </>
   )
 }

@@ -139,7 +139,7 @@ export default function HomePage() {
                 <div className="p-1.5 bg-orange-100 rounded-md">
                   <Clock className="w-3.5 h-3.5 text-orange-600" />
                 </div>
-                <p className="text-[10px] text-muted-foreground">Remaining</p>
+                <p className="text-[10px] text-muted-foreground">Remaining Today</p>
               </div>
               <p className="text-xl font-bold text-orange-600">{medicineStats.remainingDoses}</p>
             </CardContent>
