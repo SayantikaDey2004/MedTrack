@@ -12,6 +12,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import NotificationBell from '@/components/notification-bell';
 
 import useAuth from '@/context/auth.context';
 import LoadingSpinner from '@/components/ui/loading';
@@ -99,11 +100,16 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <div className="bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 text-white px-3 sm:px-4 md:px-6 pt-4 sm:pt-5 md:pt-6 pb-8 sm:pb-10 md:pb-12 rounded-b-2xl sm:rounded-b-3xl shadow-xl">
-        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-1 sm:mb-2">
-          Take Control of
-          <br />
-          Your Health
-        </h1>
+        <div className="flex justify-between items-start mb-1 sm:mb-2">
+          <div>
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold">
+              Take Control of
+              <br />
+              Your Health
+            </h1>
+          </div>
+          <NotificationBell />
+        </div>
         <p className="text-purple-100 text-xs sm:text-sm mb-3 sm:mb-4">
           Smart medication tracking that works for you
         </p>
