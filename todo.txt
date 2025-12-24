@@ -1,6 +1,4 @@
-sign up page
-login page
-today page
+
 Home
 
 ami osudh kkheye6i. eta korar jonno kono aaktaa logic likhte hbe with ui simple (-1 from stock) 

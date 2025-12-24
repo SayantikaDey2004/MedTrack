@@ -39,44 +39,56 @@ export const getTodayDate = (): string => {
 };
 
 // Get or create today's consumption document
-export const getTodayConsumption = async (userId: string): Promise<DailyConsumption> => {
-  try {
-    const todayDate = getTodayDate();
-    const docId = `${userId}_${todayDate}`;
-    const docRef = doc(db, "dailyConsumption", docId);
-    
-    const docSnap = await getDoc(docRef);
-    
-    if (docSnap.exists()) {
-      return docSnap.data() as DailyConsumption;
-    } else {
-      // Create new document with all active medicines
-      const activeMedicines = await getActiveMedicines(userId);
-      
-      const medicines: DailyConsumption['medicines'] = {};
-      activeMedicines.forEach(med => {
-        const dosageCount = getDosageCount(med.dosage);
-        medicines[med.id] = {
-          medicineName: med.name,
-          dosage: med.dosage as "once" | "twice" | "thrice" | "four",
-          consumed: new Array(dosageCount).fill(false),
-        };
-      });
-      
-      const newDoc: DailyConsumption = {
-        userId,
-        date: todayDate,
-        medicines,
-        updatedAt: Timestamp.now(),
-      };
-      
-      await setDoc(docRef, newDoc);
-      return newDoc;
-    }
-  } catch (error) {
-    console.error("Error getting today's consumption:", error);
-    throw error;
+export const getTodayConsumption = async (
+  userId: string
+): Promise<DailyConsumption> => {
+  const todayDate = getTodayDate();
+  const docId = `${userId}_${todayDate}`;
+  const docRef = doc(db, "dailyConsumption", docId);
+
+  const activeMedicines = await getActiveMedicines(userId);
+  const docSnap = await getDoc(docRef);
+
+  let consumption: DailyConsumption;
+
+  if (docSnap.exists()) {
+    consumption = docSnap.data() as DailyConsumption;
+  } else {
+    consumption = {
+      userId,
+      date: todayDate,
+      medicines: {},
+      updatedAt: Timestamp.now(),
+    };
   }
+
+  let hasChanges = false;
+
+  // 🔥 Sync active medicines into dailyConsumption
+  for (const med of activeMedicines) {
+    if (!consumption.medicines[med.id]) {
+      const dosageCount = getDosageCount(med.dosage);
+
+      consumption.medicines[med.id] = {
+        medicineName: med.name,
+        dosage: med.dosage as any,
+        consumed: new Array(dosageCount).fill(false),
+      };
+
+      hasChanges = true;
+    }
+  }
+
+  if (!docSnap.exists()) {
+    await setDoc(docRef, consumption);
+  } else if (hasChanges) {
+    await updateDoc(docRef, {
+      medicines: consumption.medicines,
+      updatedAt: Timestamp.now(),
+    });
+  }
+  
+  return consumption;
 };
 
 // Get active medicines for user

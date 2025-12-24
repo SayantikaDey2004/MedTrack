@@ -7,7 +7,7 @@ import { getTodayConsumption, updateConsumption, getTodayDate } from "@/api/dail
 import type { DailyConsumption } from "@/api/dailyConsumption";
 import useAuth from "@/context/auth.context";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { useNavigate,useLocation } from "react-router";
 import LoadingSpinner from "@/components/ui/loading";
 
 export default function TodayMedicinesPage() {
@@ -19,7 +19,7 @@ export default function TodayMedicinesPage() {
 
   useEffect(() => {
     loadTodayConsumption();
-  }, [user]);
+  }, [user,location.key]);
 
   const loadTodayConsumption = async () => {
     if (!user?.uid) return;
@@ -27,6 +27,7 @@ export default function TodayMedicinesPage() {
     try {
       setLoading(true);
       const data = await getTodayConsumption(user.uid);
+      console.log("Today's consumption data:", data);
       setConsumption(data);
     } catch (error) {
       console.error("Error loading consumption:", error);
