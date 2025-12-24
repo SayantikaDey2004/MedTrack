@@ -6,15 +6,20 @@ import {
   Shield,
   Sparkles,
   TrendingUp,
-  Zap,
-  Bell,
   Pill,
+  CheckCircle2,
+  Clock,
   AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { getMedicineStats } from '@/api/medicine';
+
 import useAuth from '@/context/auth.context';
 import LoadingSpinner from '@/components/ui/loading';
+import { getTodayConsumption} from '@/api/dailyConsumption';
+import type { DailyConsumption } from '@/api/dailyConsumption';
+import { getMedicineStats } from '@/api/medicine';
+
+
 
 /* =========================
    HomePage Component
@@ -22,21 +27,51 @@ import LoadingSpinner from '@/components/ui/loading';
 export default function HomePage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [, setTodayConsumption] =
+  useState<DailyConsumption | null>(null);
+
   const [medicineStats, setMedicineStats] = useState({
-    total: 0,
+    activeMedicines: 0,
+    totalDoses: 0,
+    completedDoses: 0,
+    remainingDoses: 0,
     lowStock: 0,
   });
 
-  // Fetch medicine stats from Firebase
+  // Fetch today's consumption data from Firebase
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchConsumption = async () => {
       if (user?.uid) {
         try {
           setLoading(true);
-          const stats = await getMedicineStats(user.uid);
-          setMedicineStats(stats);
+          const [consumption, stats] = await Promise.all([
+            getTodayConsumption(user.uid),
+            getMedicineStats(user.uid)
+          ]);
+          setTodayConsumption(consumption);
+          
+          // Calculate stats
+          const medicineIds = Object.keys(consumption.medicines);
+          const activeMedicines = medicineIds.length;
+          
+          let totalDoses = 0;
+          let completedDoses = 0;
+          
+          medicineIds.forEach((medicineId) => {
+            const medicine = consumption.medicines[medicineId];
+            totalDoses += medicine.consumed.length;
+            completedDoses += medicine.consumed.filter(Boolean).length;
+          });
+          
+          setMedicineStats({
+            activeMedicines,
+            totalDoses,
+            completedDoses,
+            remainingDoses: totalDoses - completedDoses,
+            lowStock: stats.lowStock,
+          });
         } catch (error) {
-          console.error('Error fetching medicine stats:', error);
+          console.error('Error fetching consumption data:', error);
         } finally {
           setLoading(false);
         }
@@ -45,28 +80,13 @@ export default function HomePage() {
       }
     };
 
-    fetchStats();
+    fetchConsumption();
   }, [user?.uid]);
 
   const quickStats = [
     { icon: Calendar, value: '100%', label: 'On Time' },
     { icon: Shield, value: 'Secure', label: 'Privacy' },
     { icon: TrendingUp, value: '95%', label: 'Success' },
-  ];
-
-  const highlights = [
-    {
-      icon: Bell,
-      title: 'Never Forget',
-      desc: 'Get timely reminders exactly when you need them',
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      icon: Zap,
-      title: 'Stay Stocked',
-      desc: 'Know before you run out with smart alerts',
-      color: 'from-orange-500 to-red-500',
-    },
   ];
 
   const navigate = useNavigate();
@@ -99,9 +119,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Medicine Analytics */}
+      {/* Today's Overview */}
       <div className="px-3 -mt-5 mb-3">
-        <h2 className="text-sm font-semibold mb-2 text-gray-700">Medicine Analytics</h2>
         <div className="grid grid-cols-2 gap-2">
           <Card className="border shadow-sm">
             <CardContent className="p-2.5">
@@ -109,40 +128,45 @@ export default function HomePage() {
                 <div className="p-1.5 bg-blue-100 rounded-md">
                   <Pill className="w-3.5 h-3.5 text-blue-600" />
                 </div>
-                <p className="text-[10px] text-muted-foreground">Total Medicines</p>
+                <p className="text-[10px] text-muted-foreground">Active Medicines</p>
               </div>
-              <p className="text-xl font-bold text-blue-600">{medicineStats.total}</p>
+              <p className="text-xl font-bold text-blue-600">{medicineStats.activeMedicines}</p>
             </CardContent>
           </Card>
           <Card className="border shadow-sm">
             <CardContent className="p-2.5">
               <div className="flex items-center gap-2 mb-1">
                 <div className="p-1.5 bg-orange-100 rounded-md">
-                  <AlertTriangle className="w-3.5 h-3.5 text-orange-600" />
+                  <Clock className="w-3.5 h-3.5 text-orange-600" />
                 </div>
-                <p className="text-[10px] text-muted-foreground">Low Stock</p>
+                <p className="text-[10px] text-muted-foreground">Remaining</p>
               </div>
-              <p className="text-xl font-bold text-orange-600">{medicineStats.lowStock}</p>
+              <p className="text-xl font-bold text-orange-600">{medicineStats.remainingDoses}</p>
+            </CardContent>
+          </Card>
+          <Card className="border shadow-sm">
+            <CardContent className="p-2.5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 bg-green-100 rounded-md">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">Done</p>
+              </div>
+              <p className="text-xl font-bold text-green-600">{medicineStats.completedDoses}</p>
+            </CardContent>
+          </Card>
+          <Card className="border shadow-sm">
+            <CardContent className="p-2.5">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="p-1.5 bg-red-100 rounded-md">
+                  <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+                </div>
+                <p className="text-[10px] text-muted-foreground">Low Stocks</p>
+              </div>
+              <p className="text-xl font-bold text-red-600">{medicineStats.lowStock}</p>
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      {/* Highlights */}
-      <div className="px-3 space-y-2">
-        {highlights.map((h, i) => (
-          <Card key={i} className="border-0 shadow-md">
-            <CardContent className="p-2.5 flex gap-2.5">
-              <div className={`w-10 h-10 bg-linear-to-br ${h.color} rounded-lg flex items-center justify-center`}>
-                <h.icon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xs font-bold">{h.title}</h3>
-                <p className="text-[10px] text-gray-600">{h.desc}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
 
       {/* CTA */}
