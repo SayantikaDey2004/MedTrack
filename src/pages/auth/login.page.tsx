@@ -104,10 +104,11 @@ const HandleManualSignin = async () => {
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="flex justify-center mb-4">
+      
+      <Card className="border-none shadow-none">
+        <div className="flex justify-center mb-4">
         <img src={logo} alt="MedTrack Logo" className="h-20 w-20" />
       </div>
-      <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
          { /* <CardDescription>

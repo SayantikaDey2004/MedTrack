@@ -140,10 +140,11 @@ const handleManualSignup = async () => {
 
   return (
     <>
-      <div className="flex justify-center mb-4">
+      
+      <Card className="border-none shadow-none" {...props}>
+        <div className="flex justify-center mb-4">
         <img src={logo} alt="MedTrack Logo" className="h-20 w-20" />
       </div>
-      <Card {...props}>
         <CardHeader>
           <CardTitle>Create an account</CardTitle>
       {/* <CardDescription>
