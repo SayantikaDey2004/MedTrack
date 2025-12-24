@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { auth, googleAuthProvider } from "@/config/firebase"
-import { GoogleAuthProvider,getAdditionalUserInfo, signInWithPopup, updateProfile } from "firebase/auth"
+import { getAdditionalUserInfo, signInWithPopup, updateProfile } from "firebase/auth"
 import { Link, useNavigate } from "react-router"
 import { createUserWithEmailAndPassword ,fetchSignInMethodsForEmail} from "firebase/auth"
 import { useState } from "react"
@@ -139,85 +139,90 @@ const handleManualSignup = async () => {
 };
 
   return (
-    <>
-      
-      <Card className="border-none shadow-none" {...props}>
-        <div className="flex justify-center mb-4">
-        <img src={logo} alt="MedTrack Logo" className="h-20 w-20" />
-      </div>
-        <CardHeader>
-          <CardTitle>Create an account</CardTitle>
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <div className="w-full max-w-md">
+        <Card className="border shadow-lg" {...props}>
+          <div className="flex justify-center pt-6">
+            <img src={logo} alt="MedTrack Logo" className="h-16 w-16 sm:h-20 sm:w-20" />
+              </div>
+          <CardHeader className="space-y-1 px-4 sm:px-6 pt-4">
+            <CardTitle className="text-xl sm:text-2xl text-center">Create an account</CardTitle>
       {/* <CardDescription>
           Enter your information below to create your account
         </CardDescription> */}
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={(e) => {
-          e.preventDefault();
-          handleManualSignup();
-        }}>
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="Enter your name" required 
-              value={name}
-              onChange={(e) => setName(e.target.value)}/>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-6">
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleManualSignup();
+            }}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="name">Full Name</FieldLabel>
+                  <Input id="name" type="text" placeholder="Enter your name" required 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-10 sm:h-11"/>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-10 sm:h-11"
+                  />
               {/*<FieldDescription>
                 We&apos;ll use this to contact you. We will not share your email
                 with anyone else.
               </FieldDescription>*/}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" placeholder="Enter your password" required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              />
-              {/* <FieldDescription>
-                Must be at least 8 characters long.
-              </FieldDescription> */}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirm-password">
-                Confirm Password
-              </FieldLabel>
-              <Input id="confirm-password" type="password" placeholder="Confirm password" required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              { /* <FieldDescription>Please confirm your password.</FieldDescription> */}
-            </Field>
-            <FieldGroup>
-              <Field>
-                <Button type="submit">Create Account</Button>
-                <Button variant="outline" type="button" onClick={handleSignUpWithGoogle}>
-                  Sign up with Google
-                </Button>
-                <FieldDescription className="px-6 text-center">
-                  Already have an account?<Link to="/login" className="font-semibold">Sign in</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </FieldGroup>
-        </form>
-         {error && (
-          <div className="text-red-500 mt-4 text-center">
-            {error}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-    </>
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <Input id="password" type="password" placeholder="Enter your password" required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-10 sm:h-11"
+                  />
+                  {/* <FieldDescription>
+                    Must be at least 8 characters long.
+                  </FieldDescription> */}
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="confirm-password">
+                    Confirm Password
+                  </FieldLabel>
+                  <Input id="confirm-password" type="password" placeholder="Confirm password" required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-10 sm:h-11"
+                  />
+                  { /* <FieldDescription>Please confirm your password.</FieldDescription> */}
+                </Field>
+                <FieldGroup>
+                  <Field>
+                    <Button type="submit" className="w-full h-10 sm:h-11">Create Account</Button>
+                    <Button variant="outline" type="button" onClick={handleSignUpWithGoogle} className="w-full h-10 sm:h-11">
+                      Sign up with Google
+                    </Button>
+                    <FieldDescription className="px-6 text-center text-xs sm:text-sm">
+                      Already have an account?<Link to="/login" className="font-semibold">Sign in</Link>
+                    </FieldDescription>
+                  </Field>
+                </FieldGroup>
+              </FieldGroup>
+            </form>
+             {error && (
+              <div className="text-red-500 mt-4 text-center text-sm">
+                {error}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   )
 }

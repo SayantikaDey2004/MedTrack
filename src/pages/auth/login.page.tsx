@@ -103,65 +103,68 @@ const HandleManualSignin = async () => {
 };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      
-      <Card className="border-none shadow-none">
-        <div className="flex justify-center mb-4">
-        <img src={logo} alt="MedTrack Logo" className="h-20 w-20" />
-      </div>
-        <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+    <div className={cn("min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50", className)} {...props}>
+      <div className="w-full max-w-md">
+        <Card className="border shadow-lg">
+          <div className="flex justify-center pt-6">
+            <img src={logo} alt="MedTrack Logo" className="h-16 w-16 sm:h-20 sm:w-20" />
+              </div>
+          <CardHeader className="space-y-1 px-4 sm:px-6 pt-4">
+            <CardTitle className="text-xl sm:text-2xl text-center">Login to your account</CardTitle>
          { /* <CardDescription>
             Enter your email below to login to your account
           </CardDescription> */}
-        </CardHeader>
-        <CardContent>
-          <form
-              onSubmit={(e) => {
-              e.preventDefault()
-              HandleManualSignin()
-            }}
-            >
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Link
-                   to="/forgotPassword"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input id="password" type="password" required placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}/>
-              </Field>
-              <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button" onClick={handleLoginWithGoogle}>
-                  Login with Google
-                </Button>
-                <FieldDescription className="text-center">
-                  Don't have an account? <Link to="/signup"className="font-semibold">Sign up</Link>
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-          </form>
-          {error && <div className="text-red-500 mt-4 text-center">{error}</div>}
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-6">
+            <form
+                onSubmit={(e) => {
+                e.preventDefault()
+                HandleManualSignin()
+              }}
+              >
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-10 sm:h-11"
+                  />
+                </Field>
+                <Field>
+                  <div className="flex items-center">
+                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <Link
+                     to="/forgotPassword"
+                      className="ml-auto inline-block text-xs sm:text-sm underline-offset-4 hover:underline"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </div>
+                  <Input id="password" type="password" required placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-10 sm:h-11"/>
+                </Field>
+                <Field>
+                  <Button type="submit" className="w-full h-10 sm:h-11">Login</Button>
+                  <Button variant="outline" type="button" onClick={handleLoginWithGoogle} className="w-full h-10 sm:h-11">
+                    Login with Google
+                  </Button>
+                  <FieldDescription className="text-center text-xs sm:text-sm">
+                    Don't have an account? <Link to="/signup"className="font-semibold">Sign up</Link>
+                  </FieldDescription>
+                </Field>
+              </FieldGroup>
+            </form>
+            {error && <div className="text-red-500 mt-4 text-center text-sm">{error}</div>}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
  }
