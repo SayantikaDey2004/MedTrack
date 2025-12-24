@@ -63,6 +63,18 @@ export const getTodayConsumption = async (
   }
 
   let hasChanges = false;
+  
+  // Create a Set of active medicine IDs for quick lookup
+  const activeMedicineIds = new Set(activeMedicines.map(med => med.id));
+
+  // 🔥 Remove medicines that are no longer active (deleted medicines)
+  const currentMedicineIds = Object.keys(consumption.medicines);
+  for (const medicineId of currentMedicineIds) {
+    if (!activeMedicineIds.has(medicineId)) {
+      delete consumption.medicines[medicineId];
+      hasChanges = true;
+    }
+  }
 
   // 🔥 Sync active medicines into dailyConsumption
   for (const med of activeMedicines) {
@@ -164,5 +176,44 @@ const getDosageCount = (dosage: string): number => {
       return 4;
     default:
       return 1;
+  }
+};
+
+// Remove medicine from all dailyConsumption documents
+export const removeMedicineFromDailyConsumption = async (
+  userId: string,
+  medicineId: string
+): Promise<void> => {
+  try {
+    const dailyConsumptionRef = collection(db, "dailyConsumption");
+    const q = query(
+      dailyConsumptionRef,
+      where("userId", "==", userId)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    
+    // Update each document that contains this medicine
+    const updatePromises = querySnapshot.docs.map(async (docSnapshot) => {
+      const data = docSnapshot.data() as DailyConsumption;
+      
+      // Check if this medicine exists in the document
+      if (data.medicines && data.medicines[medicineId]) {
+        // Create a new medicines object without the deleted medicine
+        const updatedMedicines = { ...data.medicines };
+        delete updatedMedicines[medicineId];
+        
+        // Update the document
+        await updateDoc(doc(db, "dailyConsumption", docSnapshot.id), {
+          medicines: updatedMedicines,
+          updatedAt: Timestamp.now(),
+        });
+      }
+    });
+    
+    await Promise.all(updatePromises);
+  } catch (error) {
+    console.error("Error removing medicine from daily consumption:", error);
+    throw error;
   }
 };

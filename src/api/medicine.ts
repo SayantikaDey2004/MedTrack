@@ -16,6 +16,7 @@ import {
   Query,
   Timestamp,
 } from "firebase/firestore";
+import { removeMedicineFromDailyConsumption } from "./dailyConsumption";
 
 // Types
 export interface Medicine {
@@ -76,8 +77,25 @@ const updateMedicine = async (id: string, medicineData: Partial<Medicine>) => {
 // Delete Medicine
 const deleteMedicine = async (id: string) => {
   try {
+    // First, get the medicine to find the userId
     const medicineRef = doc(db, "medicines", id);
+    const medicineDoc = await getDoc(medicineRef);
+    
+    if (!medicineDoc.exists()) {
+      throw new Error("Medicine not found");
+    }
+    
+    const medicineData = medicineDoc.data();
+    const userId = medicineData.userId;
+    
+    // Delete from medicines collection
     await deleteDoc(medicineRef);
+    
+    // Remove from all dailyConsumption documents
+    if (userId) {
+      await removeMedicineFromDailyConsumption(userId, id);
+    }
+    
     return true;
   } catch (error) {
     console.error("Error deleting medicine:", error);
