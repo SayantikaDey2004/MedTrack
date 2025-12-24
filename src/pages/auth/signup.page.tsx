@@ -20,6 +20,7 @@ import { getAdditionalUserInfo, signInWithPopup, updateProfile } from "firebase/
 import { Link, useNavigate } from "react-router"
 import { createUserWithEmailAndPassword ,fetchSignInMethodsForEmail} from "firebase/auth"
 import { useState } from "react"
+import { FirebaseError } from "firebase/app"
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   const navigate = useNavigate();
@@ -61,18 +62,18 @@ const handleSignUpWithGoogle = async () => {
     }
 
     navigate("/")
-  } catch (error: any) {
+  } catch (error) {
     console.error("Google Sign-In Error:", error)
 
     // 🔴 Manual-first user trying Google
-    if (error.code === "auth/account-exists-with-different-credential") {
+    if (error instanceof FirebaseError && error.code === "auth/account-exists-with-different-credential") {
       toast.error(
         "This email is already registered with Email & Password. Please sign in manually first."
       )
       return
     }
 
-    if (error.code === "auth/popup-closed-by-user") return
+    if (error instanceof FirebaseError && error.code === "auth/popup-closed-by-user") return
 
     toast.error("Failed to continue with Google")
   }
@@ -111,10 +112,10 @@ const handleManualSignup = async () => {
 
     toast.success("Account created successfully!");
     navigate("/")
-  } catch (error: any) {
+  } catch (error) {
     console.error("Manual signup failed:", error)
 
-    if (error.code === "auth/email-already-in-use") {
+    if (error instanceof FirebaseError && error.code === "auth/email-already-in-use") {
       try {
         const providers = await fetchSignInMethodsForEmail(auth, email)
         console.log("Existing providers for email:", providers)
@@ -130,7 +131,7 @@ const handleManualSignup = async () => {
         console.error("Account linking failed:", linkError)
         toast.error("Failed to link account. Please try again.")
       }
-    } else if (error.code === "auth/weak-password") {
+    } else if (error instanceof FirebaseError && error.code === "auth/weak-password") {
       toast.error("Password should be at least 6 characters")
     } else {
       toast.error("Signup failed. Please try again.")

@@ -13,15 +13,13 @@ import LoadingSpinner from "@/components/ui/loading";
 export default function TodayMedicinesPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [consumption, setConsumption] = useState<DailyConsumption | null>(null);
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    loadTodayConsumption();
-  }, [user,location.key]);
-
-  const loadTodayConsumption = async () => {
+    const loadTodayConsumption = async () => {
     if (!user?.uid) return;
 
     try {
@@ -36,6 +34,11 @@ export default function TodayMedicinesPage() {
       setLoading(false);
     }
   };
+  
+    loadTodayConsumption();
+  }, [user,location.key,]);
+
+  
 
   const handleCheckboxChange = async (medicineId: string, doseIndex: number, checked: boolean) => {
     if (!user?.uid || !consumption) return;
@@ -100,71 +103,71 @@ export default function TodayMedicinesPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-purple-600 via-purple-500 to-pink-500 relative overflow-hidden pb-20">
       {/* Decorative circles */}
-      <div className="absolute top-10 left-10 h-48 w-48 md:h-64 md:w-64 rounded-full bg-purple-400/20 md:bg-purple-400/30 blur-3xl"></div>
-      <div className="absolute bottom-10 right-10 h-56 w-56 md:h-80 md:w-80 rounded-full bg-pink-400/20 md:bg-pink-400/30 blur-3xl"></div>
+      <div className="hidden sm:block absolute top-10 left-10 h-48 w-48 md:h-64 md:w-64 rounded-full bg-purple-400/20 md:bg-purple-400/30 blur-3xl"></div>
+      <div className="hidden sm:block absolute bottom-10 right-10 h-56 w-56 md:h-80 md:w-80 rounded-full bg-pink-400/20 md:bg-pink-400/30 blur-3xl"></div>
 
       {/* Container */}
-      <div className="relative min-h-screen p-4 md:p-6 lg:p-8">
-        <Card className="w-full max-w-3xl mx-auto border-0 shadow-2xl">
+      <div className="relative min-h-screen p-3 sm:p-4 md:p-6 lg:p-8 py-6 sm:py-8">
+        <Card className="w-full max-w-3xl lg:max-w-4xl mx-auto border-0 shadow-2xl">
           {/* Header */}
-          <CardHeader className="space-y-4 p-5 sm:p-6 md:p-8">
+          <CardHeader className="space-y-3 sm:space-y-4 p-4 sm:p-5 md:p-6 lg:p-8">
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-transparent transition-colors w-fit p-0 h-auto group -ml-1"
+              className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-purple-600 hover:bg-transparent transition-colors w-fit p-0 h-auto group -ml-1"
             >
-              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium">Back</span>
             </Button>
 
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-6 w-6 text-purple-600" />
-                <CardTitle className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
+                <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
                   Today's Medicines
                 </CardTitle>
               </div>
-              <CardDescription className="text-sm sm:text-base text-gray-600">
+              <CardDescription className="text-xs sm:text-sm md:text-base text-gray-600">
                 {getTodayDate()} • Track your daily medication
               </CardDescription>
             </div>
 
             {/* Progress Bar */}
-            <div className="bg-gray-100 rounded-lg p-4">
+            <div className="bg-gray-100 rounded-lg p-3 sm:p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Progress</span>
-                <span className="text-sm font-bold text-purple-600">{taken}/{total} doses</span>
+                <span className="text-xs sm:text-sm font-medium text-gray-700">Progress</span>
+                <span className="text-xs sm:text-sm font-bold text-purple-600">{taken}/{total} doses</span>
               </div>
-              <div className="w-full bg-gray-300 rounded-full h-3">
+              <div className="w-full bg-gray-300 rounded-full h-2.5 sm:h-3">
                 <div
-                  className="bg-linear-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-300"
+                  className="bg-linear-to-r from-purple-600 to-pink-600 h-2.5 sm:h-3 rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">{progress}% completed</p>
+              <p className="text-[10px] sm:text-xs text-gray-500 mt-2">{progress}% completed</p>
             </div>
           </CardHeader>
 
           {/* Content */}
-          <CardContent className="space-y-4 p-5 sm:p-6 md:p-8 pt-0">
+          <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-5 md:p-6 lg:p-8 pt-0">
             {consumption && Object.keys(consumption.medicines).length > 0 ? (
               Object.entries(consumption.medicines).map(([medicineId, medicine]) => (
                 <Card key={medicineId} className="border-2 hover:border-purple-300 transition-colors">
-                  <CardContent className="p-4 sm:p-5">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="bg-purple-100 rounded-full p-2">
-                        <Pill className="h-5 w-5 text-purple-600" />
+                  <CardContent className="p-3 sm:p-4 md:p-5">
+                    <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
+                      <div className="bg-purple-100 rounded-full p-1.5 sm:p-2">
+                        <Pill className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-gray-900">{medicine.medicineName}</h3>
-                        <p className="text-sm text-gray-500 capitalize">{medicine.dosage} daily</p>
+                        <h3 className="font-semibold text-base sm:text-lg text-gray-900">{medicine.medicineName}</h3>
+                        <p className="text-xs sm:text-sm text-gray-500 capitalize">{medicine.dosage} daily</p>
                       </div>
                       {medicine.consumed.every(c => c) && (
-                        <CheckCircle2 className="h-6 w-6 text-green-600" />
+                        <CheckCircle2 className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
                       )}
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {medicine.consumed.map((isConsumed, index) => (
                         <div
                           key={index}

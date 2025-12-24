@@ -80,7 +80,7 @@ const MedicineModal: React.FC<MedicineModalProps> = ({ isOpen, onClose, onSave, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-125 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl">
             {editingMedicine ? 'Edit Medicine' : 'Add New Medicine'}
@@ -162,7 +162,7 @@ const ViewMedicineDialog: React.FC<{ medicine: Medicine | null; onClose: () => v
 
   return (
     <Dialog open={!!medicine} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] max-w-[500px]">
+      <DialogContent className="w-[95vw] max-w-125">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl flex items-center gap-2">
             <Pill className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />

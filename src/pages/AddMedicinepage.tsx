@@ -75,62 +75,61 @@ export default function AddMedicinePage() {
  return (
     <div className="min-h-screen bg-linear-to-br from-purple-600 via-purple-500 to-pink-500 relative overflow-hidden">
       {/* Decorative circles - hidden on mobile */}
-      <div className="absolute top-10 left-10 h-48 w-48 md:h-64 md:w-64 rounded-full bg-purple-400/20 md:bg-purple-400/30 blur-3xl"></div>
-      <div className="absolute bottom-10 right-10 h-56 w-56 md:h-80 md:w-80 rounded-full bg-pink-400/20 md:bg-pink-400/30 blur-3xl"></div>
+      <div className="hidden sm:block absolute top-10 left-10 h-48 w-48 md:h-64 md:w-64 rounded-full bg-purple-400/20 md:bg-purple-400/30 blur-3xl"></div>
+      <div className="hidden sm:block absolute bottom-10 right-10 h-56 w-56 md:h-80 md:w-80 rounded-full bg-pink-400/20 md:bg-pink-400/30 blur-3xl"></div>
       
       {/* Container */}
-      <div className="relative min-h-screen p-4 md:p-6 lg:p-8 flex items-start md:items-center justify-center">
-        <Card className="w-full max-w-2xl border-0 shadow-2xl my-4 md:my-0">
+      <div className="relative min-h-screen p-3 sm:p-4 md:p-6 lg:p-8 flex items-start sm:items-center justify-center py-6 sm:py-8">
+        <Card className="w-full max-w-2xl lg:max-w-3xl border-0 shadow-2xl my-2 sm:my-4 md:my-0">
           {/* Header */}
-          <CardHeader className="space-y-4 p-5 sm:p-6 md:p-8">
+          <CardHeader className="space-y-3 sm:space-y-4 p-4 sm:p-5 md:p-6 lg:p-8">
             <Button 
               variant="ghost"
               onClick={() => window.history.back()}//use reacat router
-              className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-transparent transition-colors w-fit p-0 h-auto group -ml-1"
-            >
-              <ArrowLeft className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
+              className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-purple-600 hover:bg-transparent transition-colors w-fit p-0 h-auto group -ml-1">
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium">Back</span>
             </Button>
             
             <div>
-              <CardTitle className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
+              <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent pb-1 leading-tight">
                 Add Medicine
               </CardTitle>
-              <CardDescription className="text-sm sm:text-base text-gray-600 mt-2">
+              <CardDescription className="text-xs sm:text-sm md:text-base text-gray-600 mt-1.5 sm:mt-2">
                 Enter your medication details
               </CardDescription>
             </div>
           </CardHeader>
         
           {/* Content */}
-          <CardContent className="space-y-5 p-5 sm:p-6 md:p-8 pt-0">
+          <CardContent className="space-y-4 sm:space-y-5 p-4 sm:p-5 md:p-6 lg:p-8 pt-0">
             {/* Medicine Name */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-semibold text-gray-700">
                 Medicine Name
               </Label>
               <div className="relative">
-                <Pill className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                <Pill className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400 pointer-events-none" />
                 <Input
                   id="name"
                   type="text"
                   placeholder="e.g., Aspirin"
                   value={formData.name}
                   onChange={(e) => handleChange("name", e.target.value)}
-                  className="pl-11 h-12 sm:h-14 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                  className="pl-10 sm:pl-11 h-11 sm:h-12 md:h-14 text-sm sm:text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                 />
               </div>
             </div>
 
             {/* Dosage and Stock - Stack on mobile */}
-            <div className="space-y-5 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-4">
+            <div className="space-y-4 sm:space-y-5 md:space-y-0 md:grid md:grid-cols-2 md:gap-4 lg:gap-5">
               {/* Dosage */}
               <div className="space-y-2">
                 <Label htmlFor="dosage" className="text-sm font-semibold text-gray-700">
                   Dosage
                 </Label>
                 <Select value={formData.dosage} onValueChange={(value) => handleChange("dosage", value)}>
-                  <SelectTrigger className="h-12 sm:h-14 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500">
+                  <SelectTrigger className="h-11 sm:h-12 md:h-14 text-sm sm:text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500">
                     <SelectValue placeholder="Select dosage" />
                   </SelectTrigger>
                   <SelectContent>
@@ -148,14 +147,14 @@ export default function AddMedicinePage() {
                   Current Stock
                 </Label>
                 <div className="relative">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
+                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400 pointer-events-none" />
                   <Input
                     id="stock"
                     type="number"
                     placeholder="e.g., 30"
                     value={formData.stock}
                     onChange={(e) => handleChange("stock", e.target.value)}
-                    className="pl-11 h-12 sm:h-14 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
+                    className="pl-10 sm:pl-11 h-11 sm:h-12 md:h-14 text-sm sm:text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               </div>
@@ -166,13 +165,13 @@ export default function AddMedicinePage() {
               <Label className="text-sm font-semibold text-gray-700">
                 Status
               </Label>
-              <div className="flex items-center justify-between p-4 rounded-lg border border-gray-300 bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <Power className={`h-5 w-5 ${
+              <div className="flex items-center justify-between p-3 sm:p-4 rounded-lg border border-gray-300 bg-gray-50">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Power className={`h-4 w-4 sm:h-5 sm:w-5 ${
                     formData.isActive ? "text-green-600" : "text-gray-400"
                   }`} />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-xs sm:text-sm font-medium text-gray-900">
                       {formData.isActive ? "Active" : "Inactive"}
                     </p>
                     <p className="text-xs text-gray-500">
@@ -204,13 +203,13 @@ export default function AddMedicinePage() {
                 Notes <span className="text-gray-500 font-normal">(Optional)</span>
               </Label>
               <div className="relative">
-                <FileText className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 pointer-events-none" />
+                <FileText className="absolute left-3 top-3.5 h-4 w-4 sm:h-5 sm:w-5 text-gray-400 pointer-events-none" />
                 <Textarea
                   id="notes"
                   placeholder="Add any special instructions..."
                   value={formData.notes}
                   onChange={(e) => handleChange("notes", e.target.value)}
-                  className="pl-11 pr-4 py-3 text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 resize-none min-h-25"
+                  className="pl-10 sm:pl-11 pr-3 sm:pr-4 py-2.5 sm:py-3 text-sm sm:text-base border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-500 resize-none min-h-20 sm:min-h-25"
                 />
               </div>
             </div>
@@ -218,7 +217,7 @@ export default function AddMedicinePage() {
             {/* Save Button */}
             <Button
               onClick={handleSubmit}
-              className="w-full h-12 sm:h-14 text-base sm:text-lg bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 mt-6"
+              className="w-full h-11 sm:h-12 md:h-14 text-sm sm:text-base md:text-lg bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 mt-4 sm:mt-6"
             >
               Save Medicine
             </Button>

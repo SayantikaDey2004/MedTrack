@@ -38,7 +38,8 @@ const [error, setError] = useState<string | null>(null);
     const result = await signInWithPopup(auth, googleAuthProvider);
     const user = result.user;
     // Check if this is a brand new account
-    const { isNewUser } = getAdditionalUserInfo(result);
+    const info = getAdditionalUserInfo(result);
+    const isNewUser = info?.isNewUser;
     if (isNewUser) {
       // 1. Delete the newly created auth user so they aren't "registered"
       await deleteUser(user);
@@ -68,12 +69,11 @@ const HandleManualSignin = async () => {
   try {
     setError(null);
 
-    const result = await signInWithEmailAndPassword(
+    await signInWithEmailAndPassword(
       auth,
       email,
       password
     );
-    const user = result.user;
     // const isUserPresentInDb = await getUserByEmail(user.email!);
     // if (!isUserPresentInDb) {
     //   toast.error("No user found with this email.");
@@ -103,7 +103,7 @@ const HandleManualSignin = async () => {
 };
 
   return (
-    <div className={cn("min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50", className)} {...props}>
+    <div className={cn("min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50", className)} {...props}>
       <div className="w-full max-w-md">
         <Card className="border shadow-lg">
           <div className="flex justify-center pt-6">

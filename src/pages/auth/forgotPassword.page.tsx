@@ -41,32 +41,33 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
+    <div className="flex min-h-screen items-center justify-center p-3 sm:p-4 md:p-6 bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <Card className="w-full max-w-md border shadow-lg">
+        <CardHeader className="space-y-3 px-4 sm:px-6 pt-5 sm:pt-6">
             <button 
             onClick={() => window.history.back()}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 transition-colors w-fit group"
+            className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-purple-600 transition-colors w-fit group"
             >
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-medium">Go Back</span>
             </button>
-          <CardTitle>Forgot Password</CardTitle>         
+          <CardTitle className="text-xl sm:text-2xl">Forgot Password</CardTitle>         
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 px-4 sm:px-6 pb-5 sm:pb-6">
           <FieldGroup>
-            <FieldLabel>Email</FieldLabel>
+            <FieldLabel className="text-sm sm:text-base">Email</FieldLabel>
             <Input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="h-10 sm:h-11 text-sm sm:text-base"
             />
           </FieldGroup>
 
           <Button
-            className="w-full"
+            className="w-full h-10 sm:h-11 text-sm sm:text-base"
             onClick={handleReset}
             disabled={loading || !email}
           >
